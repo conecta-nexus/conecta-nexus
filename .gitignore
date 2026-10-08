@@ -1,0 +1,15 @@
+# Repositorios clonados por setup.sh
+/frontend/
+/gateway/
+/auth/
+/profile/
+/challenge/
+/application/
+/moderation/
+/notification/
+/infra/
+
+# Entornos locales y variables sensibles
+.env
+.env.local
+*.log
