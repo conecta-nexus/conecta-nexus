@@ -3,7 +3,6 @@
 # Script para clonar todos los repos directamente.
 # Organización: https://github.com/conecta-nexus
 # ==============================================================================
-set -e
 
 # Paleta de colores para la terminal
 RED='\033[0;31m'
