@@ -1,97 +1,116 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Conecta Nexus - Initial Commit & Push Automation Script
-# Standards: Conventional Commits in English (chore), develop & main sync.
+# Conecta Nexus - Copy Templates & Push to All Repositories
 # ==============================================================================
 
-# Paleta de colores
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 RED='\033[0;31m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
 ROOT_DIR="$(pwd)"
 
-# Lista de repositorios hijos
 REPOS=(
+  "application"
+  "auth"
+  "challenge"
   "frontend"
   "gateway"
-  "auth"
-  "profile"
-  "challenge"
-  "application"
+  "infra"
   "moderation"
   "notification"
-  "infra"
+  "profile"
 )
 
-# Mensaje de commit estandarizado bajo Conventional Commits (en inglés)
-COMMIT_MSG="chore(setup): initialize project templates, documentation and workspace structure"
+COMMIT_MSG="chore(setup): add repository templates, issue forms, and contributing guidelines"
 
 echo -e "${CYAN}================================================================${NC}"
-echo -e "${CYAN}         CONECTA NEXUS - COMMIT & PUSH TO MAIN / DEVELOP        ${NC}"
+echo -e "${CYAN}    DISTRIBUCIÓN DE PLANTILLAS Y PUSH A REPOSITORIOS (MAIN/DEV)  ${NC}"
 echo -e "${CYAN}================================================================${NC}"
 echo -e "Commit message: ${YELLOW}\"${COMMIT_MSG}\"${NC}\n"
 
-# Función para procesar un repositorio específico
-commit_and_push_repo() {
-  local target_path="$1"
-  local repo_name="$2"
+# 1. Validar que los templates existan en la raíz
+if [ ! -d ".github" ] || [ ! -f "CONTRIBUTING.md" ]; then
+  echo -e "${RED}Error: No se encontró la carpeta .github/ o el archivo CONTRIBUTING.md en la raíz.${NC}"
+  exit 1
+fi
 
-  echo -e "${BLUE}▶ Procesando repositorio: [${repo_name}]${NC}"
-  cd "$target_path" || return
+# 2. Recorrer y procesar cada subrepositorio
+for REPO in "${REPOS[@]}"; do
+  TARGET_PATH="${ROOT_DIR}/${REPO}"
 
-  if [ ! -d ".git" ]; then
-    echo -e "  ${RED}✖ No es un repositorio git. Omitiendo.${NC}"
-    cd "$ROOT_DIR" || return
-    return
+  echo -e "${BLUE}▶ Procesando repositorio: [${REPO}]${NC}"
+
+  if [ ! -d "$TARGET_PATH" ] || [ ! -d "$TARGET_PATH/.git" ]; then
+    echo -e "  ${YELLOW}⚠ Carpeta '${REPO}' no encontrada o no es un repositorio Git. Omitiendo.${NC}"
+    continue
   fi
 
-  # Asegurar staging de archivos
-  git add -A
+  # Copiar la estructura de templates de forma limpia y segura
+  mkdir -p "$TARGET_PATH/.github/ISSUE_TEMPLATE"
+  cp -f "$ROOT_DIR/.github/PULL_REQUEST_TEMPLATE.md" "$TARGET_PATH/.github/" 2>/dev/null || true
+  cp -f "$ROOT_DIR/.github/CODEOWNERS" "$TARGET_PATH/.github/" 2>/dev/null || true
+  cp -rf "$ROOT_DIR/.github/ISSUE_TEMPLATE/"* "$TARGET_PATH/.github/ISSUE_TEMPLATE/" 2>/dev/null || true
+  cp -f "$ROOT_DIR/CONTRIBUTING.md" "$TARGET_PATH/" 2>/dev/null || true
 
-  # Comprobar si hay cambios pendientes por commitear
-  if git diff-index --quiet HEAD -- 2>/dev/null; then
-    echo -e "  ${YELLOW}ℹ No hay cambios nuevos en el working tree.${NC}"
+  echo -e "  ${GREEN}✔ Archivos copiados a ${REPO}/.github/ y ${REPO}/CONTRIBUTING.md${NC}"
+
+  cd "$TARGET_PATH" || continue
+
+  # Asegurarse de estar en main
+  git checkout main --quiet 2>/dev/null || true
+
+  # Agregar los templates copiados
+  git add .github CONTRIBUTING.md
+
+  # Verificar si hay cambios listos para commit
+  if git diff --cached --quiet; then
+    echo -e "  ${YELLOW}ℹ No hay cambios nuevos que commitear en ${REPO}.${NC}"
   else
-    git commit -m "$COMMIT_MSG"
-    echo -e "  ${GREEN}✔ Commit creado exitosamente.${NC}"
+    git commit -m "$COMMIT_MSG" --quiet
+    echo -e "  ${GREEN}✔ Commit creado en rama 'main'.${NC}"
   fi
 
-  # Detectar la rama actual (generalmente main)
-  CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")
-  
-  # Subir rama actual (main)
-  echo -e "  Subiendo cambios a ${CYAN}origin/${CURRENT_BRANCH}${NC}..."
-  git push -u origin "$CURRENT_BRANCH" 2>/dev/null || echo -e "  ${YELLOW}⚠ Advertencia al pushear a ${CURRENT_BRANCH}.${NC}"
+  # Subir rama main a GitHub
+  echo -e "  Subiendo cambios a origin/main..."
+  git push -u origin main --quiet 2>/dev/null && echo -e "  ${GREEN}✔ main sincronizado en GitHub.${NC}" || echo -e "  ${YELLOW}⚠ Advertencia al subir a origin/main.${NC}"
 
-  # Crear y subir la rama develop para habilitar el flujo de PRs
-  echo -e "  Sincronizando rama ${CYAN}develop${NC}..."
-  git checkout -B develop 2>/dev/null
-  git push -u origin develop 2>/dev/null || echo -e "  ${YELLOW}⚠ Advertencia al pushear a develop.${NC}"
+  # Crear o sincronizar rama develop a partir del main actualizado
+  git checkout -B develop --quiet
+  echo -e "  Subiendo rama develop a origin/develop..."
+  git push -u origin develop --quiet 2>/dev/null && echo -e "  ${GREEN}✔ develop sincronizado en GitHub.${NC}" || echo -e "  ${YELLOW}⚠ Advertencia al subir a origin/develop.${NC}"
 
-  # Regresar a develop como rama de trabajo activa
+  # Dejar el repositorio posicionado en develop para el inicio del sprint
   git checkout develop --quiet 2>/dev/null || true
-  echo -e "  ${GREEN}✔ [${repo_name}] sincronizado en main y develop.${NC}\n"
+  echo -e "  ${CYAN}➜ Rama activa fijada en: develop${NC}\n"
 
-  cd "$ROOT_DIR" || return
-}
-
-# 1. Procesar repositorios hijos
-for repo in "${REPOS[@]}"; do
-  if [ -d "$ROOT_DIR/$repo" ]; then
-    commit_and_push_repo "$ROOT_DIR/$repo" "$repo"
-  else
-    echo -e "${RED}✖ Directorio $repo no encontrado. Omitiendo.${NC}"
-  fi
+  cd "$ROOT_DIR" || exit 1
 done
 
-# 2. Procesar el repositorio paraguas raíz (conecta-nexus)
-echo -e "${BLUE}▶ Procesando repositorio raíz: [conecta-nexus (paraguas)]${NC}"
-commit_and_push_repo "$ROOT_DIR" "conecta-nexus"
+# 3. Procesar el repositorio paraguas raíz (conecta-nexus)
+echo -e "${BLUE}▶ Procesando repositorio raíz: [conecta-nexus]${NC}"
+cd "$ROOT_DIR" || exit 1
 
-echo -e "${CYAN}================================================================${NC}"
-echo -e "${GREEN}✔ ¡Todos los repositorios fueron actualizados y subidos!${NC}"
-echo -e "${CYAN}================================================================${NC}"
+git checkout main --quiet 2>/dev/null || true
+git add .github CONTRIBUTING.md .gitignore setup.sh 2>/dev/null || true
+
+if ! git diff --cached --quiet; then
+  git commit -m "$COMMIT_MSG" --quiet
+  echo -e "  ${GREEN}✔ Commit creado en repositorio raíz.${NC}"
+fi
+
+echo -e "  Subiendo rama main del raíz..."
+git push -u origin main --quiet 2>/dev/null || true
+
+git checkout -B develop --quiet
+echo -e "  Subiendo rama develop del raíz..."
+git push -u origin develop --quiet 2>/dev/null || true
+
+git checkout develop --quiet 2>/dev/null || true
+echo -e "  ${CYAN}➜ Rama activa del raíz fijada en: develop${NC}"
+
+echo -e "\n${CYAN}================================================================${NC}"
+echo -e "${GREEN}✔ ¡Todos los templates fueron distribuidos y subidos a main y develop!${NC}"
+echo -e "${CYAN}================================================================${NC}\n"
