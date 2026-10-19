@@ -16,7 +16,7 @@ import subprocess
 ORG = "conecta-nexus"
 PROJECT_NUM = "2"
 PROJECT_TITLE = "Conecta Nexus Management"
-CSV_FILENAME = "conecta_nexus_user_stories.csv"
+CSV_FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conecta_nexus_user_stories.csv")
 
 # Definición completa de las 14 Historias de Usuario oficiales (100 PH)
 USER_STORIES = [

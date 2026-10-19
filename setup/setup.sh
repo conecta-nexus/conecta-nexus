@@ -67,7 +67,7 @@ done
 imprimir_banner
 
 # Directorio base de ejecución (raíz del repositorio paraguas)
-WORKSPACE_DIR="$(pwd)"
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXITOS=0
 ACTUALIZADOS=0
 FALLIDOS=0

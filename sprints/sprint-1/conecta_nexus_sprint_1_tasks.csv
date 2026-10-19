@@ -1,0 +1,1385 @@
+"task_id","repo","service","parent_story","parent_issue_number","title","assignee","labels","objective","specs","deliverables","verification","body"
+"AUTH-TASK-01","auth","auth","HU-01","2","[AUTH-TASK-01] Database Engine & Connection Configuration","NelsonConde","task,sprint-1","Configure the async SQLAlchemy engine, session factory, connection pool, and pydantic-settings configuration for the db_auth database on PostgreSQL 16.","- Database: PostgreSQL 16 (db_auth)
+- Engine: SQLAlchemy async engine (create_async_engine) with asyncpg driver
+- Pool: pool_size=10, max_overflow=20, pool_pre_ping=True
+- Configuration: pydantic-settings BaseSettings loading DATABASE_URL, DB_ECHO, APP_ENV
+- Target Files: src/core/config.py, src/core/database.py","- [ ] Implement BaseSettings in src/core/config.py
+- [ ] Create async SQLAlchemy engine and async_sessionmaker in src/core/database.py
+- [ ] Provide get_db dependency yielding async sessions
+- [ ] Unit test verifying engine instantiation and session generation","uv run python -c 'from src.core.database import async_engine; print(async_engine)'","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Configure the async SQLAlchemy engine, session factory, connection pool, and pydantic-settings configuration for the db_auth database on PostgreSQL 16.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Database: PostgreSQL 16 (db_auth)
+- Engine: SQLAlchemy async engine (create_async_engine) with asyncpg driver
+- Pool: pool_size=10, max_overflow=20, pool_pre_ping=True
+- Configuration: pydantic-settings BaseSettings loading DATABASE_URL, DB_ECHO, APP_ENV
+- Target Files: src/core/config.py, src/core/database.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Implement BaseSettings in src/core/config.py
+- [ ] Create async SQLAlchemy engine and async_sessionmaker in src/core/database.py
+- [ ] Provide get_db dependency yielding async sessions
+- [ ] Unit test verifying engine instantiation and session generation
+
+---
+
+### 5. Verification Command
+```bash
+uv run python -c 'from src.core.database import async_engine; print(async_engine)'
+```"
+"AUTH-TASK-02","auth","auth","HU-01","2","[AUTH-TASK-02] User Database Model & Alembic Migration","NelsonConde","task,sprint-1","Implement the core users SQLAlchemy model representing user accounts and credentials in db_auth, and generate the initial Alembic migration.","- Table: users in db_auth
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * email: VARCHAR(255) (UNIQUE NOT NULL, indexed)
+  * password_hash: VARCHAR(255) (NOT NULL)
+  * role: VARCHAR(20) (NOT NULL, CHECK role IN ('STUDENT', 'COMPANY', 'ADMIN'))
+  * is_active: BOOLEAN (NOT NULL, DEFAULT TRUE)
+  * is_email_verified: BOOLEAN (NOT NULL, DEFAULT FALSE)
+  * last_login_at: TIMESTAMPTZ (NULL)
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  * updated_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/user.py, alembic/versions/001_create_users_table.py","- [ ] Declarative Base model for User with all column types and CHECK constraints
+- [ ] Alembic environment configured to read SQLAlchemy models
+- [ ] Initial migration generated and applied cleanly against local PostgreSQL
+- [ ] Model tests verifying constraints and defaults","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the core users SQLAlchemy model representing user accounts and credentials in db_auth, and generate the initial Alembic migration.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: users in db_auth
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * email: VARCHAR(255) (UNIQUE NOT NULL, indexed)
+  * password_hash: VARCHAR(255) (NOT NULL)
+  * role: VARCHAR(20) (NOT NULL, CHECK role IN ('STUDENT', 'COMPANY', 'ADMIN'))
+  * is_active: BOOLEAN (NOT NULL, DEFAULT TRUE)
+  * is_email_verified: BOOLEAN (NOT NULL, DEFAULT FALSE)
+  * last_login_at: TIMESTAMPTZ (NULL)
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  * updated_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/user.py, alembic/versions/001_create_users_table.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Declarative Base model for User with all column types and CHECK constraints
+- [ ] Alembic environment configured to read SQLAlchemy models
+- [ ] Initial migration generated and applied cleanly against local PostgreSQL
+- [ ] Model tests verifying constraints and defaults
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"AUTH-TASK-03","auth","auth","HU-01","2","[AUTH-TASK-03] Password Hashing & Domain Security Service","NelsonConde","task,sprint-1","Implement the password hashing and verification service using Argon2 or bcrypt, and validate institutional and corporate email domains.","- Algorithm: Argon2id or bcrypt via passlib / pwd_context
+- Validation Rules:
+  * Minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 symbol
+  * Students must register with institutional domain @ufps.edu.co
+  * Companies must register with verified corporate domain (blacklist free webmails: gmail, hotmail, yahoo)
+- Target Files: src/core/security.py, src/services/validation_service.py","- [ ] hash_password(plain_password: str) -> str
+- [ ] verify_password(plain_password: str, hashed_password: str) -> bool
+- [ ] validate_email_domain(email: str, role: str) -> bool
+- [ ] Unit tests covering password hashing, verification, and domain validation edge cases","uv run pytest tests/test_security.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the password hashing and verification service using Argon2 or bcrypt, and validate institutional and corporate email domains.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Algorithm: Argon2id or bcrypt via passlib / pwd_context
+- Validation Rules:
+  * Minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 symbol
+  * Students must register with institutional domain @ufps.edu.co
+  * Companies must register with verified corporate domain (blacklist free webmails: gmail, hotmail, yahoo)
+- Target Files: src/core/security.py, src/services/validation_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] hash_password(plain_password: str) -> str
+- [ ] verify_password(plain_password: str, hashed_password: str) -> bool
+- [ ] validate_email_domain(email: str, role: str) -> bool
+- [ ] Unit tests covering password hashing, verification, and domain validation edge cases
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_security.py
+```"
+"AUTH-TASK-04","auth","auth","HU-01","2","[AUTH-TASK-04] User Registration Pydantic Schemas & Repository","NelsonConde","task,sprint-1","Create Pydantic v2 validation schemas for user registration and implement the UserRepository for database operations.","- Schemas:
+  * UserCreate: email, password, role ('STUDENT' or 'COMPANY')
+  * UserResponse: id, email, role, is_active, is_email_verified, created_at (excludes password_hash)
+- Repository Methods in UserRepository:
+  * get_by_email(db, email: str) -> User | None
+  * get_by_id(db, user_id: UUID) -> User | None
+  * create(db, user_in: UserCreate, hashed_password: str) -> User
+- Target Files: src/schemas/user.py, src/repositories/user_repository.py","- [ ] Pydantic UserCreate schema with strict type and email validation
+- [ ] Pydantic UserResponse schema with model_config = ConfigDict(from_attributes=True)
+- [ ] UserRepository class with async SQLAlchemy queries
+- [ ] Unit tests for schema validation and repository CRUD operations","uv run pytest tests/test_user_repository.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Create Pydantic v2 validation schemas for user registration and implement the UserRepository for database operations.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Schemas:
+  * UserCreate: email, password, role ('STUDENT' or 'COMPANY')
+  * UserResponse: id, email, role, is_active, is_email_verified, created_at (excludes password_hash)
+- Repository Methods in UserRepository:
+  * get_by_email(db, email: str) -> User | None
+  * get_by_id(db, user_id: UUID) -> User | None
+  * create(db, user_in: UserCreate, hashed_password: str) -> User
+- Target Files: src/schemas/user.py, src/repositories/user_repository.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Pydantic UserCreate schema with strict type and email validation
+- [ ] Pydantic UserResponse schema with model_config = ConfigDict(from_attributes=True)
+- [ ] UserRepository class with async SQLAlchemy queries
+- [ ] Unit tests for schema validation and repository CRUD operations
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_user_repository.py
+```"
+"AUTH-TASK-05","auth","auth","HU-01","2","[AUTH-TASK-05] User Registration Router & Endpoint","NelsonConde","task,sprint-1","Implement the public user registration endpoint with role restrictions and duplicate email handling.","- Endpoint: POST /api/v1/auth/register
+- Request Body: UserCreate
+- Response: HTTP 201 Created with UserResponse
+- Business Rules:
+  * Reject role ADMIN on public registration with HTTP 403 / 422
+  * Check duplicate email and return HTTP 409 Conflict with clear error message
+  * Persist new account with hashed password and is_active = True
+- Target Files: src/routers/auth.py, src/services/auth_service.py","- [ ] POST /api/v1/auth/register endpoint integrated into APIRouter
+- [ ] Duplicate email conflict handling returning HTTP 409
+- [ ] ADMIN creation prohibition logic
+- [ ] Integration tests covering successful registration, duplicate email, and ADMIN blocking","uv run pytest tests/test_register.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the public user registration endpoint with role restrictions and duplicate email handling.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: POST /api/v1/auth/register
+- Request Body: UserCreate
+- Response: HTTP 201 Created with UserResponse
+- Business Rules:
+  * Reject role ADMIN on public registration with HTTP 403 / 422
+  * Check duplicate email and return HTTP 409 Conflict with clear error message
+  * Persist new account with hashed password and is_active = True
+- Target Files: src/routers/auth.py, src/services/auth_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/auth/register endpoint integrated into APIRouter
+- [ ] Duplicate email conflict handling returning HTTP 409
+- [ ] ADMIN creation prohibition logic
+- [ ] Integration tests covering successful registration, duplicate email, and ADMIN blocking
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_register.py
+```"
+"AUTH-TASK-06","auth","auth","HU-01","2","[AUTH-TASK-06] User Account Status Endpoint (ADMIN)","NelsonConde","task,sprint-1","Expose administrative endpoint to activate or suspend user accounts, secured with RBAC scope checks.","- Endpoint: PATCH /api/v1/auth/users/{user_id}/status
+- Request Body: UserStatusUpdate (is_active: bool, reason: str | None)
+- Security: Restricted to role ADMIN and OAuth2 scope user:status:write (RF03, RF32)
+- Response: HTTP 200 OK with updated UserResponse
+- Target Files: src/routers/users.py, src/services/user_service.py","- [ ] PATCH /api/v1/auth/users/{user_id}/status route implementation
+- [ ] RBAC scope dependency verifying user:status:write
+- [ ] Account status toggling in db_auth
+- [ ] Unit tests testing authorized admin status change and unauthorized 403 rejections","uv run pytest tests/test_user_status.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Expose administrative endpoint to activate or suspend user accounts, secured with RBAC scope checks.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: PATCH /api/v1/auth/users/{user_id}/status
+- Request Body: UserStatusUpdate (is_active: bool, reason: str | None)
+- Security: Restricted to role ADMIN and OAuth2 scope user:status:write (RF03, RF32)
+- Response: HTTP 200 OK with updated UserResponse
+- Target Files: src/routers/users.py, src/services/user_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] PATCH /api/v1/auth/users/{user_id}/status route implementation
+- [ ] RBAC scope dependency verifying user:status:write
+- [ ] Account status toggling in db_auth
+- [ ] Unit tests testing authorized admin status change and unauthorized 403 rejections
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_user_status.py
+```"
+"AUTH-TASK-07","auth","auth","HU-02","1","[AUTH-TASK-07] RSA Key Pair Management & Cryptographic Setup (ADR-002)","AnorakTeam","task,sprint-1","Implement asymmetric cryptography management for RS256 token signing (ADR-002) using RSA 2048-bit key pairs.","- ADR-002: RS256 asymmetric cryptographic signing
+- Keys:
+  * jwt_private.pem: 2048-bit RSA private key (exclusive to auth service)
+  * jwt_public.pem: RSA public key (shared with Gateway and profile)
+- Loading: Support loading from file path, environment variable, or volume mount
+- Security: .pem files must be excluded from Git via .gitignore
+- Target Files: src/core/crypto.py, scripts/generate_keys.py","- [ ] Key loading utility reading PEM formatted RSA keys
+- [ ] Script to generate local development RSA key pair
+- [ ] Fallback error handling if private key is missing
+- [ ] Unit tests verifying RSA key loading and sign/verify roundtrip","uv run python -c 'from src.core.crypto import load_rsa_keys; priv, pub = load_rsa_keys(); print(""Keys loaded"")'","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement asymmetric cryptography management for RS256 token signing (ADR-002) using RSA 2048-bit key pairs.
+
+---
+
+### 3. Technical Specifications & Constraints
+- ADR-002: RS256 asymmetric cryptographic signing
+- Keys:
+  * jwt_private.pem: 2048-bit RSA private key (exclusive to auth service)
+  * jwt_public.pem: RSA public key (shared with Gateway and profile)
+- Loading: Support loading from file path, environment variable, or volume mount
+- Security: .pem files must be excluded from Git via .gitignore
+- Target Files: src/core/crypto.py, scripts/generate_keys.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Key loading utility reading PEM formatted RSA keys
+- [ ] Script to generate local development RSA key pair
+- [ ] Fallback error handling if private key is missing
+- [ ] Unit tests verifying RSA key loading and sign/verify roundtrip
+
+---
+
+### 5. Verification Command
+```bash
+uv run python -c 'from src.core.crypto import load_rsa_keys; priv, pub = load_rsa_keys(); print(""Keys loaded"")'
+```"
+"AUTH-TASK-08","auth","auth","HU-02","1","[AUTH-TASK-08] Refresh Token & Password Reset Models & Migrations","NelsonConde","task,sprint-1","Create database models and migrations for session management (refresh_tokens) and password reset tokens in db_auth.","- Tables in db_auth:
+  1. refresh_tokens:
+     * id: UUID (Primary Key, maps to claim jti)
+     * user_id: UUID (NOT NULL, FK users.id ON DELETE CASCADE)
+     * token_hash: VARCHAR(255) (UNIQUE NOT NULL, SHA-256)
+     * expires_at: TIMESTAMPTZ (NOT NULL)
+     * is_revoked: BOOLEAN (NOT NULL, DEFAULT FALSE)
+     * revoked_at: TIMESTAMPTZ (NULL)
+     * ip_address: INET (NULL)
+     * user_agent: VARCHAR(512) (NULL)
+     * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  2. password_reset_tokens:
+     * id: UUID (PK), user_id: UUID (FK), token_hash: VARCHAR(255) (UNIQUE NOT NULL)
+     * expires_at: TIMESTAMPTZ (NOT NULL), is_used: BOOLEAN (DEFAULT FALSE)
+     * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/token.py, alembic/versions/002_create_token_tables.py","- [ ] SQLAlchemy models for RefreshToken and PasswordResetToken
+- [ ] Foreign keys with cascading delete linked to users.id
+- [ ] Alembic migration generated and applied cleanly
+- [ ] Model tests for token revocation and expiration fields","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Create database models and migrations for session management (refresh_tokens) and password reset tokens in db_auth.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Tables in db_auth:
+  1. refresh_tokens:
+     * id: UUID (Primary Key, maps to claim jti)
+     * user_id: UUID (NOT NULL, FK users.id ON DELETE CASCADE)
+     * token_hash: VARCHAR(255) (UNIQUE NOT NULL, SHA-256)
+     * expires_at: TIMESTAMPTZ (NOT NULL)
+     * is_revoked: BOOLEAN (NOT NULL, DEFAULT FALSE)
+     * revoked_at: TIMESTAMPTZ (NULL)
+     * ip_address: INET (NULL)
+     * user_agent: VARCHAR(512) (NULL)
+     * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  2. password_reset_tokens:
+     * id: UUID (PK), user_id: UUID (FK), token_hash: VARCHAR(255) (UNIQUE NOT NULL)
+     * expires_at: TIMESTAMPTZ (NOT NULL), is_used: BOOLEAN (DEFAULT FALSE)
+     * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/token.py, alembic/versions/002_create_token_tables.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] SQLAlchemy models for RefreshToken and PasswordResetToken
+- [ ] Foreign keys with cascading delete linked to users.id
+- [ ] Alembic migration generated and applied cleanly
+- [ ] Model tests for token revocation and expiration fields
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"AUTH-TASK-09","auth","auth","HU-02","1","[AUTH-TASK-09] JWT Token Service & OAuth2 Claims Builder (RS256)","AnorakTeam","task,sprint-1","Implement the core JWT encoding/decoding service with RS256 signing, claims builder, and role-based scope injection.","- Algorithm: RS256 with 2048-bit RSA private key
+- Lifespan: Access Token = 15 minutes, Refresh Token = 7 days
+- Payload Claims:
+  * iss: https://auth.conectanexus.ufps.edu.co
+  * aud: ['conecta-nexus-gateway', 'conecta-nexus-services']
+  * sub: str(user.id)
+  * jti: str(token_id)
+  * role: user.role
+  * scope: Scopes mapped from Section 4.1 RBAC matrix
+- Target Files: src/services/jwt_service.py, src/core/security.py","- [ ] create_access_token(user: User, jti: UUID) -> str
+- [ ] create_refresh_token(user: User, jti: UUID) -> str
+- [ ] decode_token(token: str) -> dict
+- [ ] Scope mapping function for STUDENT, COMPANY, ADMIN
+- [ ] Unit tests for token encoding, decoding, expiration, and scope verification","uv run pytest tests/test_jwt_service.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the core JWT encoding/decoding service with RS256 signing, claims builder, and role-based scope injection.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Algorithm: RS256 with 2048-bit RSA private key
+- Lifespan: Access Token = 15 minutes, Refresh Token = 7 days
+- Payload Claims:
+  * iss: https://auth.conectanexus.ufps.edu.co
+  * aud: ['conecta-nexus-gateway', 'conecta-nexus-services']
+  * sub: str(user.id)
+  * jti: str(token_id)
+  * role: user.role
+  * scope: Scopes mapped from Section 4.1 RBAC matrix
+- Target Files: src/services/jwt_service.py, src/core/security.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] create_access_token(user: User, jti: UUID) -> str
+- [ ] create_refresh_token(user: User, jti: UUID) -> str
+- [ ] decode_token(token: str) -> dict
+- [ ] Scope mapping function for STUDENT, COMPANY, ADMIN
+- [ ] Unit tests for token encoding, decoding, expiration, and scope verification
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_jwt_service.py
+```"
+"AUTH-TASK-10","auth","auth","HU-02","1","[AUTH-TASK-10] OAuth2 Login & Refresh Token Persistence Endpoint","AnorakTeam","task,sprint-1","Implement OAuth2 password login endpoint, issuing RS256 JWT access and refresh tokens, and recording session metadata.","- Endpoint: POST /api/v1/auth/login
+- Input: OAuth2PasswordRequestForm or LoginRequest (email, password)
+- Response: HTTP 200 OK with TokenResponse (access_token, refresh_token, token_type: bearer, expires_in: 900)
+- Business Rules:
+  * Verify user exists and verify_password matches
+  * Verify is_active == True (return HTTP 403 if inactive)
+  * Update last_login_at
+  * Hash refresh token (SHA-256) and persist in refresh_tokens table with client IP and User-Agent
+  * Target response time < 50 ms
+- Target Files: src/routers/auth.py, src/services/auth_service.py","- [ ] POST /api/v1/auth/login route implementation
+- [ ] Credential authentication and active state check
+- [ ] Refresh token hash persistence in db_auth
+- [ ] Integration tests covering valid login, invalid password, and inactive user","uv run pytest tests/test_login.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement OAuth2 password login endpoint, issuing RS256 JWT access and refresh tokens, and recording session metadata.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: POST /api/v1/auth/login
+- Input: OAuth2PasswordRequestForm or LoginRequest (email, password)
+- Response: HTTP 200 OK with TokenResponse (access_token, refresh_token, token_type: bearer, expires_in: 900)
+- Business Rules:
+  * Verify user exists and verify_password matches
+  * Verify is_active == True (return HTTP 403 if inactive)
+  * Update last_login_at
+  * Hash refresh token (SHA-256) and persist in refresh_tokens table with client IP and User-Agent
+  * Target response time < 50 ms
+- Target Files: src/routers/auth.py, src/services/auth_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/auth/login route implementation
+- [ ] Credential authentication and active state check
+- [ ] Refresh token hash persistence in db_auth
+- [ ] Integration tests covering valid login, invalid password, and inactive user
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_login.py
+```"
+"AUTH-TASK-11","auth","auth","HU-02","1","[AUTH-TASK-11] Token Refresh & Rotation Endpoint","AnorakTeam","task,sprint-1","Implement refresh token rotation endpoint to renew access tokens while invalidating used refresh tokens.","- Endpoint: POST /api/v1/auth/refresh
+- Input: TokenRefreshRequest (refresh_token: str)
+- Response: HTTP 200 OK with new TokenResponse (access_token, refresh_token)
+- Business Rules:
+  * Decode refresh token and find by token_hash in db_auth
+  * Check that token is not expired and is_revoked == False
+  * Strict Rotation: Mark old token is_revoked = True, revoked_at = CURRENT_TIMESTAMP
+  * Issue and store new refresh token and new access token
+- Target Files: src/routers/auth.py, src/services/auth_service.py","- [ ] POST /api/v1/auth/refresh route
+- [ ] Refresh token validation and revocation logic
+- [ ] Issue new rotated token pair
+- [ ] Integration tests for valid refresh, re-use of revoked token, and expired token","uv run pytest tests/test_token_refresh.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement refresh token rotation endpoint to renew access tokens while invalidating used refresh tokens.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: POST /api/v1/auth/refresh
+- Input: TokenRefreshRequest (refresh_token: str)
+- Response: HTTP 200 OK with new TokenResponse (access_token, refresh_token)
+- Business Rules:
+  * Decode refresh token and find by token_hash in db_auth
+  * Check that token is not expired and is_revoked == False
+  * Strict Rotation: Mark old token is_revoked = True, revoked_at = CURRENT_TIMESTAMP
+  * Issue and store new refresh token and new access token
+- Target Files: src/routers/auth.py, src/services/auth_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/auth/refresh route
+- [ ] Refresh token validation and revocation logic
+- [ ] Issue new rotated token pair
+- [ ] Integration tests for valid refresh, re-use of revoked token, and expired token
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_token_refresh.py
+```"
+"AUTH-TASK-12","auth","auth","HU-02","1","[AUTH-TASK-12] Session Revocation & Logout Endpoint","AnorakTeam","task,sprint-1","Implement explicit logout endpoint revoking active sessions and invalidating refresh tokens.","- Endpoint: POST /api/v1/auth/logout
+- Input: LogoutRequest (refresh_token: str) or Authorization header
+- Response: HTTP 200 OK with LogoutResponse (message: 'Successfully logged out')
+- Business Rules:
+  * Extract session jti from token
+  * Set is_revoked = True and revoked_at = CURRENT_TIMESTAMP in refresh_tokens
+  * Subsequent attempts to use revoked token must return HTTP 401
+- Target Files: src/routers/auth.py, src/services/auth_service.py","- [ ] POST /api/v1/auth/logout route
+- [ ] Session revocation in db_auth
+- [ ] Invalidation check integration
+- [ ] Integration tests for logout and attempted reuse","uv run pytest tests/test_logout.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement explicit logout endpoint revoking active sessions and invalidating refresh tokens.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: POST /api/v1/auth/logout
+- Input: LogoutRequest (refresh_token: str) or Authorization header
+- Response: HTTP 200 OK with LogoutResponse (message: 'Successfully logged out')
+- Business Rules:
+  * Extract session jti from token
+  * Set is_revoked = True and revoked_at = CURRENT_TIMESTAMP in refresh_tokens
+  * Subsequent attempts to use revoked token must return HTTP 401
+- Target Files: src/routers/auth.py, src/services/auth_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/auth/logout route
+- [ ] Session revocation in db_auth
+- [ ] Invalidation check integration
+- [ ] Integration tests for logout and attempted reuse
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_logout.py
+```"
+"AUTH-TASK-13","auth","auth","HU-02","1","[AUTH-TASK-13] High-Performance Session Verification Endpoint (/verify)","AnorakTeam","task,sprint-1","Implement ultra-fast session verification endpoint for API Gateway and downstream microservices with < 50ms latency.","- Endpoint: GET /api/v1/auth/verify
+- Header: Authorization: Bearer <access_token>
+- Response: HTTP 200 OK with VerifyResponse (valid: bool, user_id: str, email: str, role: str, scopes: list[str])
+- SLA: Response time strictly < 50 ms
+- Business Rules:
+  * Validate RS256 signature with public key
+  * Verify iss, aud, and exp
+  * Return HTTP 401 Unauthorized if invalid or expired
+- Target Files: src/routers/auth.py, src/services/jwt_service.py","- [ ] GET /api/v1/auth/verify route
+- [ ] Fast stateless JWT validation path
+- [ ] Standard error responses for Gateway routing
+- [ ] Benchmark/test ensuring sub-50ms execution","uv run pytest tests/test_verify.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement ultra-fast session verification endpoint for API Gateway and downstream microservices with < 50ms latency.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: GET /api/v1/auth/verify
+- Header: Authorization: Bearer <access_token>
+- Response: HTTP 200 OK with VerifyResponse (valid: bool, user_id: str, email: str, role: str, scopes: list[str])
+- SLA: Response time strictly < 50 ms
+- Business Rules:
+  * Validate RS256 signature with public key
+  * Verify iss, aud, and exp
+  * Return HTTP 401 Unauthorized if invalid or expired
+- Target Files: src/routers/auth.py, src/services/jwt_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] GET /api/v1/auth/verify route
+- [ ] Fast stateless JWT validation path
+- [ ] Standard error responses for Gateway routing
+- [ ] Benchmark/test ensuring sub-50ms execution
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_verify.py
+```"
+"AUTH-TASK-14","auth","auth","HU-02","1","[AUTH-TASK-14] Password Reset Flow Endpoints","AnorakTeam","task,sprint-1","Implement password recovery flow: request temporary token and confirm password update with session invalidation.","- Endpoints:
+  1. POST /api/v1/auth/password-reset/request (email: str) -> generates 15-min single-use token
+  2. POST /api/v1/auth/password-reset/confirm (token: str, new_password: str) -> updates password
+- Business Rules:
+  * Single use token: mark is_used = True upon consumption
+  * Update password_hash with new password
+  * Invalidate/revoke all active refresh tokens for the user
+- Target Files: src/routers/password_reset.py, src/services/password_reset_service.py","- [ ] POST /api/v1/auth/password-reset/request route
+- [ ] POST /api/v1/auth/password-reset/confirm route
+- [ ] Token single-use validation and password updating
+- [ ] Integration tests covering full password reset cycle","uv run pytest tests/test_password_reset.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-02 (Closes part of conecta-nexus/auth#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement password recovery flow: request temporary token and confirm password update with session invalidation.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  1. POST /api/v1/auth/password-reset/request (email: str) -> generates 15-min single-use token
+  2. POST /api/v1/auth/password-reset/confirm (token: str, new_password: str) -> updates password
+- Business Rules:
+  * Single use token: mark is_used = True upon consumption
+  * Update password_hash with new password
+  * Invalidate/revoke all active refresh tokens for the user
+- Target Files: src/routers/password_reset.py, src/services/password_reset_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/auth/password-reset/request route
+- [ ] POST /api/v1/auth/password-reset/confirm route
+- [ ] Token single-use validation and password updating
+- [ ] Integration tests covering full password reset cycle
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_password_reset.py
+```"
+"AUTH-TASK-15","auth","auth","HU-01, HU-02","2","[AUTH-TASK-15] Unit & Integration Test Suite for Auth","NelsonConde","task,sprint-1","Implement full Pytest test suite with async fixtures covering all authentication, registration, token, and revocation paths.","- Framework: pytest, pytest-asyncio, httpx AsyncClient
+- Target Coverage: >= 80% line coverage
+- Test Scenarios:
+  * Registration: valid student/company, duplicate email, blocked admin
+  * Login: correct credentials, wrong password, inactive user
+  * Token: expiration, refresh rotation, re-use detection, logout revocation
+  * Verification: /verify valid and invalid tokens
+- Target Files: tests/conftest.py, tests/test_*.py","- [ ] Test database fixtures and helper client
+- [ ] Comprehensive test cases for all auth routes
+- [ ] Coverage report verification confirming >= 80%
+- [ ] GitHub Actions CI workflow check compatibility","uv run pytest --cov=src --cov-report=term-missing","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `auth`
+- **Parent User Story:** HU-01, HU-02 (Closes part of conecta-nexus/auth#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement full Pytest test suite with async fixtures covering all authentication, registration, token, and revocation paths.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Framework: pytest, pytest-asyncio, httpx AsyncClient
+- Target Coverage: >= 80% line coverage
+- Test Scenarios:
+  * Registration: valid student/company, duplicate email, blocked admin
+  * Login: correct credentials, wrong password, inactive user
+  * Token: expiration, refresh rotation, re-use detection, logout revocation
+  * Verification: /verify valid and invalid tokens
+- Target Files: tests/conftest.py, tests/test_*.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Test database fixtures and helper client
+- [ ] Comprehensive test cases for all auth routes
+- [ ] Coverage report verification confirming >= 80%
+- [ ] GitHub Actions CI workflow check compatibility
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest --cov=src --cov-report=term-missing
+```"
+"PROFILE-TASK-01","profile","profile","HU-03","1","[PROFILE-TASK-01] Database Connection & DRF Core Settings","juandiegosb","task,sprint-1","Configure PostgreSQL 16 database connection for db_profiles, modular app structure, and Django REST Framework global settings.","- Database: PostgreSQL 16 (db_profiles)
+- Modular Apps: apps.consents, apps.students, apps.companies, apps.core
+- DRF Settings: DEFAULT_RENDERER_CLASSES, DEFAULT_PARSER_CLASSES, custom exception handler
+- Target Files: config/settings.py, config/urls.py, apps/core/exceptions.py","- [ ] Configure DATABASES setting pointing to db_profiles
+- [ ] Register apps in INSTALLED_APPS
+- [ ] Custom API exception handler returning standard JSON errors
+- [ ] Verify setup with manage.py check","uv run python manage.py check","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Configure PostgreSQL 16 database connection for db_profiles, modular app structure, and Django REST Framework global settings.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Database: PostgreSQL 16 (db_profiles)
+- Modular Apps: apps.consents, apps.students, apps.companies, apps.core
+- DRF Settings: DEFAULT_RENDERER_CLASSES, DEFAULT_PARSER_CLASSES, custom exception handler
+- Target Files: config/settings.py, config/urls.py, apps/core/exceptions.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Configure DATABASES setting pointing to db_profiles
+- [ ] Register apps in INSTALLED_APPS
+- [ ] Custom API exception handler returning standard JSON errors
+- [ ] Verify setup with manage.py check
+
+---
+
+### 5. Verification Command
+```bash
+uv run python manage.py check
+```"
+"PROFILE-TASK-02","profile","profile","HU-03","1","[PROFILE-TASK-02] Stateless RS256 JWT Authentication & Scopes RBAC","AnorakTeam","task,sprint-1","Implement stateless RS256 JWT authentication in DRF using jwt_public.pem and custom permission classes for OAuth2 scopes.","- ADR-002: Stateless token validation using RSA public key (no DB queries to db_auth)
+- Classes to Implement:
+  * RS256JWTAuthentication: decodes Bearer token, validates iss, aud, exp with jwt_public.pem
+  * StatelessJWTUser: in-memory user object (id=sub, email, role, scopes: list[str])
+  * HasScope('...') & Role permissions (IsStudent, IsCompany, IsAdmin)
+- Target Files: apps/core/authentication.py, apps/core/permissions.py","- [ ] RS256JWTAuthentication class
+- [ ] StatelessJWTUser class
+- [ ] Custom scope-based DRF permission classes
+- [ ] Unit tests testing valid token decode, expired token, and scope enforcement","uv run pytest apps/core/tests/test_authentication.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement stateless RS256 JWT authentication in DRF using jwt_public.pem and custom permission classes for OAuth2 scopes.
+
+---
+
+### 3. Technical Specifications & Constraints
+- ADR-002: Stateless token validation using RSA public key (no DB queries to db_auth)
+- Classes to Implement:
+  * RS256JWTAuthentication: decodes Bearer token, validates iss, aud, exp with jwt_public.pem
+  * StatelessJWTUser: in-memory user object (id=sub, email, role, scopes: list[str])
+  * HasScope('...') & Role permissions (IsStudent, IsCompany, IsAdmin)
+- Target Files: apps/core/authentication.py, apps/core/permissions.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] RS256JWTAuthentication class
+- [ ] StatelessJWTUser class
+- [ ] Custom scope-based DRF permission classes
+- [ ] Unit tests testing valid token decode, expired token, and scope enforcement
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/core/tests/test_authentication.py
+```"
+"PROFILE-TASK-03","profile","profile","HU-03","1","[PROFILE-TASK-03] Data Consent Model & Database Migrations","AnorakTeam","task,sprint-1","Implement the DataConsent Django model representing legal consent under Colombian Law 1581 of 2012, and generate migrations.","- Table: data_consents in db_profiles
+- Fields:
+  * id: UUIDField (primary_key=True, default=uuid.uuid4)
+  * user_id: UUIDField (db_index=True, logical ref to auth users.id)
+  * policy_version: CharField(max_length=20, default='v1.0-2026')
+  * is_accepted: BooleanField (CHECK is_accepted = TRUE)
+  * ip_address: GenericIPAddressField()
+  * user_agent: TextField()
+  * accepted_at: DateTimeField(auto_now_add=True, immutable UTC)
+- Target Files: apps/consents/models.py, apps/consents/migrations/0001_initial.py","- [ ] DataConsent Django model with CheckConstraint on is_accepted
+- [ ] Initial migration created and applied
+- [ ] Admin registration for consent inspection
+- [ ] Model tests verifying immutability of accepted_at and user_id index","uv run python manage.py migrate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the DataConsent Django model representing legal consent under Colombian Law 1581 of 2012, and generate migrations.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: data_consents in db_profiles
+- Fields:
+  * id: UUIDField (primary_key=True, default=uuid.uuid4)
+  * user_id: UUIDField (db_index=True, logical ref to auth users.id)
+  * policy_version: CharField(max_length=20, default='v1.0-2026')
+  * is_accepted: BooleanField (CHECK is_accepted = TRUE)
+  * ip_address: GenericIPAddressField()
+  * user_agent: TextField()
+  * accepted_at: DateTimeField(auto_now_add=True, immutable UTC)
+- Target Files: apps/consents/models.py, apps/consents/migrations/0001_initial.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] DataConsent Django model with CheckConstraint on is_accepted
+- [ ] Initial migration created and applied
+- [ ] Admin registration for consent inspection
+- [ ] Model tests verifying immutability of accepted_at and user_id index
+
+---
+
+### 5. Verification Command
+```bash
+uv run python manage.py migrate
+```"
+"PROFILE-TASK-04","profile","profile","HU-03","1","[PROFILE-TASK-04] Consent Serializer & Blocking Permission Validator","AnorakTeam","task,sprint-1","Create DRF serializers for consent submission and a reusable permission class that blocks profile operations if consent is missing.","- Serializers:
+  * DataConsentCreateSerializer (policy_version, is_accepted)
+  * DataConsentStatusSerializer (is_accepted, policy_version, accepted_at)
+- Permission Class:
+  * HasAcceptedConsent: checks if user_id exists in DataConsent table. If not, raises PermissionDenied (HTTP 403, code: 'CONSENT_REQUIRED')
+- Target Files: apps/consents/serializers.py, apps/consents/permissions.py","- [ ] DataConsentCreateSerializer with validation
+- [ ] DataConsentStatusSerializer
+- [ ] HasAcceptedConsent DRF permission class
+- [ ] Unit tests testing consent verification and blocking","uv run pytest apps/consents/tests/test_permissions.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Create DRF serializers for consent submission and a reusable permission class that blocks profile operations if consent is missing.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Serializers:
+  * DataConsentCreateSerializer (policy_version, is_accepted)
+  * DataConsentStatusSerializer (is_accepted, policy_version, accepted_at)
+- Permission Class:
+  * HasAcceptedConsent: checks if user_id exists in DataConsent table. If not, raises PermissionDenied (HTTP 403, code: 'CONSENT_REQUIRED')
+- Target Files: apps/consents/serializers.py, apps/consents/permissions.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] DataConsentCreateSerializer with validation
+- [ ] DataConsentStatusSerializer
+- [ ] HasAcceptedConsent DRF permission class
+- [ ] Unit tests testing consent verification and blocking
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/consents/tests/test_permissions.py
+```"
+"PROFILE-TASK-05","profile","profile","HU-03","1","[PROFILE-TASK-05] Consent Registration & Status Endpoints","AnorakTeam","task,sprint-1","Expose endpoints for users to record electronic consent and query their consent status for the Nuxt 4 legal modal.","- Endpoints:
+  1. POST /api/v1/profiles/consent:
+     * Captures IP from request.META (REMOTE_ADDR / HTTP_X_FORWARDED_FOR)
+     * Captures User-Agent from request.META['HTTP_USER_AGENT']
+     * Creates DataConsent record and returns HTTP 201 Created
+  2. GET /api/v1/profiles/consent/me:
+     * Returns consent status for the authenticated user
+- Target Files: apps/consents/views.py, apps/consents/urls.py","- [ ] POST /api/v1/profiles/consent view
+- [ ] GET /api/v1/profiles/consent/me view
+- [ ] URL routing configuration
+- [ ] Integration tests verifying IP/User-Agent extraction and consent querying","uv run pytest apps/consents/tests/test_views.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Expose endpoints for users to record electronic consent and query their consent status for the Nuxt 4 legal modal.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  1. POST /api/v1/profiles/consent:
+     * Captures IP from request.META (REMOTE_ADDR / HTTP_X_FORWARDED_FOR)
+     * Captures User-Agent from request.META['HTTP_USER_AGENT']
+     * Creates DataConsent record and returns HTTP 201 Created
+  2. GET /api/v1/profiles/consent/me:
+     * Returns consent status for the authenticated user
+- Target Files: apps/consents/views.py, apps/consents/urls.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/profiles/consent view
+- [ ] GET /api/v1/profiles/consent/me view
+- [ ] URL routing configuration
+- [ ] Integration tests verifying IP/User-Agent extraction and consent querying
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/consents/tests/test_views.py
+```"
+"PROFILE-TASK-06","profile","profile","HU-04","2","[PROFILE-TASK-06] Student Profile Model & PostgreSQL Constraints","juandiegosb","task,sprint-1","Implement the StudentProfile model with semester check constraints (6 to 10) and JSONB fields for skills/courses.","- Table: student_profiles in db_profiles
+- Fields:
+  * id: UUIDField (PK)
+  * user_id: UUIDField (UNIQUE NOT NULL)
+  * full_name: CharField(max_length=150)
+  * student_code: CharField(max_length=15, unique=True) (Immutable RB-08)
+  * academic_program: CharField(max_length=120, default='Ingeniería de Sistemas')
+  * current_semester: PositiveSmallIntegerField (CHECK current_semester BETWEEN 6 AND 10)
+  * completed_courses: JSONField(default=list)
+  * technical_skills: JSONField(default=list)
+  * interest_areas: JSONField(default=list)
+  * bio: TextField(null=True, blank=True)
+  * contact_email: EmailField()
+  * contact_phone: CharField(max_length=25, null=True, blank=True)
+  * is_profile_complete: BooleanField(default=False)
+  * created_at, updated_at: DateTimeField
+- Target Files: apps/students/models.py, apps/students/migrations/0001_initial.py","- [ ] StudentProfile Django model with CheckConstraint on current_semester
+- [ ] Unique constraints on user_id and student_code
+- [ ] Django migration generated and applied
+- [ ] Model tests verifying semester constraint and default values","uv run python manage.py migrate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-04 (Closes part of conecta-nexus/profile#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the StudentProfile model with semester check constraints (6 to 10) and JSONB fields for skills/courses.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: student_profiles in db_profiles
+- Fields:
+  * id: UUIDField (PK)
+  * user_id: UUIDField (UNIQUE NOT NULL)
+  * full_name: CharField(max_length=150)
+  * student_code: CharField(max_length=15, unique=True) (Immutable RB-08)
+  * academic_program: CharField(max_length=120, default='Ingeniería de Sistemas')
+  * current_semester: PositiveSmallIntegerField (CHECK current_semester BETWEEN 6 AND 10)
+  * completed_courses: JSONField(default=list)
+  * technical_skills: JSONField(default=list)
+  * interest_areas: JSONField(default=list)
+  * bio: TextField(null=True, blank=True)
+  * contact_email: EmailField()
+  * contact_phone: CharField(max_length=25, null=True, blank=True)
+  * is_profile_complete: BooleanField(default=False)
+  * created_at, updated_at: DateTimeField
+- Target Files: apps/students/models.py, apps/students/migrations/0001_initial.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] StudentProfile Django model with CheckConstraint on current_semester
+- [ ] Unique constraints on user_id and student_code
+- [ ] Django migration generated and applied
+- [ ] Model tests verifying semester constraint and default values
+
+---
+
+### 5. Verification Command
+```bash
+uv run python manage.py migrate
+```"
+"PROFILE-TASK-07","profile","profile","HU-04","2","[PROFILE-TASK-07] Student Profile Serializers & Immutability Logic","juandiegosb","task,sprint-1","Create DRF serializers enforcing student code immutability (RB-08 / RF10) and contact masking (RF08).","- Business Rules:
+  * RB-08 / RF10: student_code and academic_program are strictly immutable after creation. Reject changes with ValidationError (HTTP 400)
+  * RF06: current_semester must be between 6 and 10
+  * RF08: StudentProfilePublicSerializer must omit contact_email and contact_phone
+- Serializers:
+  * StudentProfileCreateSerializer
+  * StudentProfileUpdateSerializer
+  * StudentProfilePrivateSerializer (owner view)
+  * StudentProfilePublicSerializer (restricted public view)
+- Target Files: apps/students/serializers.py","- [ ] Serializers with validation for current_semester
+- [ ] Immutability validator blocking changes to student_code
+- [ ] Public serializer omitting direct contact details
+- [ ] Serializer unit tests covering boundary values and immutability rejection","uv run pytest apps/students/tests/test_serializers.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-04 (Closes part of conecta-nexus/profile#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Create DRF serializers enforcing student code immutability (RB-08 / RF10) and contact masking (RF08).
+
+---
+
+### 3. Technical Specifications & Constraints
+- Business Rules:
+  * RB-08 / RF10: student_code and academic_program are strictly immutable after creation. Reject changes with ValidationError (HTTP 400)
+  * RF06: current_semester must be between 6 and 10
+  * RF08: StudentProfilePublicSerializer must omit contact_email and contact_phone
+- Serializers:
+  * StudentProfileCreateSerializer
+  * StudentProfileUpdateSerializer
+  * StudentProfilePrivateSerializer (owner view)
+  * StudentProfilePublicSerializer (restricted public view)
+- Target Files: apps/students/serializers.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Serializers with validation for current_semester
+- [ ] Immutability validator blocking changes to student_code
+- [ ] Public serializer omitting direct contact details
+- [ ] Serializer unit tests covering boundary values and immutability rejection
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/students/tests/test_serializers.py
+```"
+"PROFILE-TASK-08","profile","profile","HU-04","2","[PROFILE-TASK-08] Student Profile CRUD & Public Restricted Endpoints","juandiegosb","task,sprint-1","Expose endpoints for student profile creation, private inspection, partial updates, and public catalog queries.","- Endpoints:
+  1. POST /api/v1/profiles/students/me: Create initial profile (requires HasAcceptedConsent, role STUDENT)
+  2. GET /api/v1/profiles/students/me: Private full profile view for owner
+  3. PATCH /api/v1/profiles/students/me: Partial update (skills, courses, bio) with immutability enforcement
+  4. GET /api/v1/profiles/students/{user_id}/public: Public restricted view (masked contacts)
+- Target Files: apps/students/views.py, apps/students/urls.py","- [ ] Student profile views implementing CRUD operations
+- [ ] Consent requirement check on write operations
+- [ ] URL routing configuration
+- [ ] Integration tests covering all student endpoints","uv run pytest apps/students/tests/test_views.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-04 (Closes part of conecta-nexus/profile#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Expose endpoints for student profile creation, private inspection, partial updates, and public catalog queries.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  1. POST /api/v1/profiles/students/me: Create initial profile (requires HasAcceptedConsent, role STUDENT)
+  2. GET /api/v1/profiles/students/me: Private full profile view for owner
+  3. PATCH /api/v1/profiles/students/me: Partial update (skills, courses, bio) with immutability enforcement
+  4. GET /api/v1/profiles/students/{user_id}/public: Public restricted view (masked contacts)
+- Target Files: apps/students/views.py, apps/students/urls.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Student profile views implementing CRUD operations
+- [ ] Consent requirement check on write operations
+- [ ] URL routing configuration
+- [ ] Integration tests covering all student endpoints
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/students/tests/test_views.py
+```"
+"PROFILE-TASK-09","profile","profile","HU-05","3","[PROFILE-TASK-09] Company Profile Model & Database Migrations","juandiegosb","task,sprint-1","Implement the CompanyProfile model representing corporate allied partners in db_profiles, with migrations.","- Table: company_profiles in db_profiles
+- Fields:
+  * id: UUIDField (PK)
+  * user_id: UUIDField (UNIQUE NOT NULL)
+  * nit: CharField(max_length=25, unique=True)
+  * business_name: CharField(max_length=200)
+  * economic_sector: CharField(max_length=100)
+  * description: TextField()
+  * website_url: URLField(null=True, blank=True)
+  * public_links: JSONField(default=list)
+  * contact_name: CharField(max_length=150)
+  * contact_email: EmailField()
+  * contact_phone: CharField(max_length=25)
+  * is_verified: BooleanField(default=True)
+  * created_at, updated_at: DateTimeField
+- Target Files: apps/companies/models.py, apps/companies/migrations/0001_initial.py","- [ ] CompanyProfile Django model with unique constraints on nit and user_id
+- [ ] Django migration generated and applied
+- [ ] Admin registration for company inspection
+- [ ] Model tests verifying constraints and timestamps","uv run python manage.py migrate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-05 (Closes part of conecta-nexus/profile#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement the CompanyProfile model representing corporate allied partners in db_profiles, with migrations.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: company_profiles in db_profiles
+- Fields:
+  * id: UUIDField (PK)
+  * user_id: UUIDField (UNIQUE NOT NULL)
+  * nit: CharField(max_length=25, unique=True)
+  * business_name: CharField(max_length=200)
+  * economic_sector: CharField(max_length=100)
+  * description: TextField()
+  * website_url: URLField(null=True, blank=True)
+  * public_links: JSONField(default=list)
+  * contact_name: CharField(max_length=150)
+  * contact_email: EmailField()
+  * contact_phone: CharField(max_length=25)
+  * is_verified: BooleanField(default=True)
+  * created_at, updated_at: DateTimeField
+- Target Files: apps/companies/models.py, apps/companies/migrations/0001_initial.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] CompanyProfile Django model with unique constraints on nit and user_id
+- [ ] Django migration generated and applied
+- [ ] Admin registration for company inspection
+- [ ] Model tests verifying constraints and timestamps
+
+---
+
+### 5. Verification Command
+```bash
+uv run python manage.py migrate
+```"
+"PROFILE-TASK-10","profile","profile","HU-05","3","[PROFILE-TASK-10] Company Profile Serializers & NIT Validator","juandiegosb","task,sprint-1","Create DRF serializers for Company Profiles with Colombian DIAN NIT format/check-digit validation and contact masking.","- Business Rules:
+  * Validate Colombian NIT format (e.g. 900123456-7) with modulo 11 check-digit verification
+  * Enforce immutability of validated NIT on update (ValidationError HTTP 400)
+  * CompanyProfilePublicSerializer must omit contact_email, contact_phone, and contact_name per RF08
+- Serializers:
+  * CompanyProfileCreateSerializer, CompanyProfileUpdateSerializer
+  * CompanyProfilePrivateSerializer, CompanyProfilePublicSerializer
+- Target Files: apps/companies/serializers.py, apps/companies/validators.py","- [ ] Colombian DIAN NIT validation utility
+- [ ] Serializers with NIT format checks and immutability enforcement
+- [ ] Public serializer omitting direct contact channels
+- [ ] Unit tests for valid/invalid NITs and public serialization","uv run pytest apps/companies/tests/test_serializers.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-05 (Closes part of conecta-nexus/profile#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Create DRF serializers for Company Profiles with Colombian DIAN NIT format/check-digit validation and contact masking.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Business Rules:
+  * Validate Colombian NIT format (e.g. 900123456-7) with modulo 11 check-digit verification
+  * Enforce immutability of validated NIT on update (ValidationError HTTP 400)
+  * CompanyProfilePublicSerializer must omit contact_email, contact_phone, and contact_name per RF08
+- Serializers:
+  * CompanyProfileCreateSerializer, CompanyProfileUpdateSerializer
+  * CompanyProfilePrivateSerializer, CompanyProfilePublicSerializer
+- Target Files: apps/companies/serializers.py, apps/companies/validators.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Colombian DIAN NIT validation utility
+- [ ] Serializers with NIT format checks and immutability enforcement
+- [ ] Public serializer omitting direct contact channels
+- [ ] Unit tests for valid/invalid NITs and public serialization
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/companies/tests/test_serializers.py
+```"
+"PROFILE-TASK-11","profile","profile","HU-05","3","[PROFILE-TASK-11] Company Profile CRUD & Public Restricted Endpoints","juandiegosb","task,sprint-1","Expose endpoints for company profile registration, private consultation, updates, and public company catalog views.","- Endpoints:
+  1. POST /api/v1/profiles/companies/me: Initial company registration (requires HasAcceptedConsent, role COMPANY)
+  2. GET /api/v1/profiles/companies/me: Private full company profile view
+  3. PATCH /api/v1/profiles/companies/me: Update sector, description, website (NIT immutable)
+  4. GET /api/v1/profiles/companies/{user_id}/public: Public view for students (masked contacts)
+- Target Files: apps/companies/views.py, apps/companies/urls.py","- [ ] Company profile views implementing CRUD operations
+- [ ] Consent enforcement on company registration
+- [ ] URL routing configuration
+- [ ] Integration tests covering all company endpoints","uv run pytest apps/companies/tests/test_views.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-05 (Closes part of conecta-nexus/profile#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Expose endpoints for company profile registration, private consultation, updates, and public company catalog views.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  1. POST /api/v1/profiles/companies/me: Initial company registration (requires HasAcceptedConsent, role COMPANY)
+  2. GET /api/v1/profiles/companies/me: Private full company profile view
+  3. PATCH /api/v1/profiles/companies/me: Update sector, description, website (NIT immutable)
+  4. GET /api/v1/profiles/companies/{user_id}/public: Public view for students (masked contacts)
+- Target Files: apps/companies/views.py, apps/companies/urls.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Company profile views implementing CRUD operations
+- [ ] Consent enforcement on company registration
+- [ ] URL routing configuration
+- [ ] Integration tests covering all company endpoints
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/companies/tests/test_views.py
+```"
+"PROFILE-TASK-12","profile","profile","HU-04, HU-05","2","[PROFILE-TASK-12] Internal Eligibility & Contact Channel Endpoint","AnorakTeam","task,sprint-1","Implement synchronous internal endpoint for application service to verify student semester eligibility and reveal contact channels upon acceptance.","- Endpoint: GET /api/v1/profiles/internal/{user_id}/eligibility
+- Security: Internal service token or scope profile:read_internal
+- Response Body:
+  * is_eligible: bool (consent accepted AND current_semester between 6 and 10)
+  * current_semester: int
+  * has_consent: bool
+  * contact_info: { email, phone } (revealed per RB-05 / RF31 upon formal application acceptance)
+- Target Files: apps/core/views.py, apps/core/urls.py","- [ ] GET /api/v1/profiles/internal/{user_id}/eligibility view
+- [ ] Eligibility validation logic against DataConsent and StudentProfile
+- [ ] Contact info payload generation
+- [ ] Unit tests testing eligible, ineligible (semester < 6), and missing consent responses","uv run pytest apps/core/tests/test_eligibility.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-04, HU-05 (Closes part of conecta-nexus/profile#2)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement synchronous internal endpoint for application service to verify student semester eligibility and reveal contact channels upon acceptance.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: GET /api/v1/profiles/internal/{user_id}/eligibility
+- Security: Internal service token or scope profile:read_internal
+- Response Body:
+  * is_eligible: bool (consent accepted AND current_semester between 6 and 10)
+  * current_semester: int
+  * has_consent: bool
+  * contact_info: { email, phone } (revealed per RB-05 / RF31 upon formal application acceptance)
+- Target Files: apps/core/views.py, apps/core/urls.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] GET /api/v1/profiles/internal/{user_id}/eligibility view
+- [ ] Eligibility validation logic against DataConsent and StudentProfile
+- [ ] Contact info payload generation
+- [ ] Unit tests testing eligible, ineligible (semester < 6), and missing consent responses
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest apps/core/tests/test_eligibility.py
+```"
+"PROFILE-TASK-13","profile","profile","HU-03, HU-04, HU-05","1","[PROFILE-TASK-13] Unit & Integration Test Suite for Profile","juandiegosb","task,sprint-1","Implement full Pytest-django test suite covering consent blocking, semester validation boundaries, immutability rules, and NIT validation.","- Framework: pytest, pytest-django, DRF APIClient
+- Target Coverage: >= 80% line coverage
+- Test Scenarios:
+  * Consent: blocking without consent, successful consent recording with IP/User-Agent
+  * Student: semester 6-10 boundaries (reject <6 or >10), student_code immutability rejection
+  * Company: NIT check-digit validation, immutable NIT rejection
+  * Privacy: verify contact_email and contact_phone are omitted from all public serializers
+  * Internal: eligibility validation endpoint
+- Target Files: tests/conftest.py, apps/*/tests/*.py","- [ ] Pytest fixtures for mock JWT tokens and test database
+- [ ] Comprehensive test cases across consents, students, companies, and core
+- [ ] Coverage report confirming >= 80%
+- [ ] Green CI test execution","uv run pytest --cov=apps --cov-report=term-missing","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `profile`
+- **Parent User Story:** HU-03, HU-04, HU-05 (Closes part of conecta-nexus/profile#1)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 1 (12 Oct – 22 Oct 2026)
+- **Labels:** `task`, `sprint-1`
+
+---
+
+### 2. Objective & Description
+Implement full Pytest-django test suite covering consent blocking, semester validation boundaries, immutability rules, and NIT validation.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Framework: pytest, pytest-django, DRF APIClient
+- Target Coverage: >= 80% line coverage
+- Test Scenarios:
+  * Consent: blocking without consent, successful consent recording with IP/User-Agent
+  * Student: semester 6-10 boundaries (reject <6 or >10), student_code immutability rejection
+  * Company: NIT check-digit validation, immutable NIT rejection
+  * Privacy: verify contact_email and contact_phone are omitted from all public serializers
+  * Internal: eligibility validation endpoint
+- Target Files: tests/conftest.py, apps/*/tests/*.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Pytest fixtures for mock JWT tokens and test database
+- [ ] Comprehensive test cases across consents, students, companies, and core
+- [ ] Coverage report confirming >= 80%
+- [ ] Green CI test execution
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest --cov=apps --cov-report=term-missing
+```"
