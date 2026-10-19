@@ -9,7 +9,8 @@
 
 set -euo pipefail
 
-CSV_FILE="${1:-conecta_nexus_user_stories.csv}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CSV_FILE="${1:-${SCRIPT_DIR}/conecta_nexus_user_stories.csv}"
 ORG="conecta-nexus"
 PROJECT_NUM="2"
 PROJECT_TITLE="Conecta Nexus Management"
