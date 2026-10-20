@@ -40,9 +40,13 @@ services:
       - "8001:8000"
     volumes:
       - ./auth:/app:Z
+    env_file:
+      - ./auth/.env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_auth
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/db_auth
+      - DB_ECHO=false
+      - APP_ENV=development
     depends_on:
       - postgres
     networks:
@@ -61,6 +65,8 @@ services:
       - "8002:8000"
     volumes:
       - ./profile:/app:Z
+    env_file:
+      - ./profile/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_profiles
@@ -82,6 +88,8 @@ services:
       - "8003:8000"
     volumes:
       - ./application:/app:Z
+    env_file:
+      - ./application/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_applications
@@ -103,6 +111,8 @@ services:
       - "8004:8000"
     volumes:
       - ./challenge:/app:Z
+    env_file:
+      - ./challenge/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_challenges
@@ -124,6 +134,8 @@ services:
       - "8005:8000"
     volumes:
       - ./moderation:/app:Z
+    env_file:
+      - ./moderation/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_moderation
@@ -145,6 +157,8 @@ services:
       - "8006:8000"
     volumes:
       - ./notification:/app:Z
+    env_file:
+      - ./notification/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_notifications
@@ -168,6 +182,8 @@ services:
       - ./frontend:/app:Z
       - /app/node_modules
       - /app/.nuxt
+    env_file:
+      - ./frontend/.env
     environment:
       - HOST=0.0.0.0
       - PORT=3000
@@ -189,6 +205,9 @@ services:
       - "8080:80"
     volumes:
       - ./gateway/conf.d:/etc/nginx/conf.d:ro,Z
+      - ./auth/certs/jwt_public.pem:/etc/nginx/certs/jwt_public.pem:ro,Z
+    env_file:
+      - ./gateway/.env
     depends_on:
       - frontend
       - auth
