@@ -9,8 +9,10 @@ Repositorio central y punto de entrada para sincronizar, configurar y gestionar 
 ```text
 conecta-nexus/
 ├── setup/                      # Scripts de aprovisionamiento y sincronización de repositorios
-│   ├── setup.sh                # Clona / sincroniza los 9 repositorios y sincroniza plantillas de issue
-│   └── commit-and-push-all.sh  # Script de ayuda para commits y pushes simultáneos a develop
+│   ├── setup.sh                # Configuración del workspace para Linux/macOS
+│   ├── setup.bat               # Configuración del workspace para Windows
+│   ├── commit-and-push-all.sh  # Script de ayuda para commits y pushes simultáneos a develop
+│   └── init-db.sql             # Inicialización de bases de datos locales
 ├── management/                 # Backlog de Historias de Usuario y automatización de GitHub Projects
 │   ├── conecta_nexus_user_stories.csv   # Matriz completa de HU (HU-01 a HU-23)
 │   ├── configure_sprints_and_deadlines.py # Configuración de iteraciones y campos en GitHub Project #2
@@ -33,8 +35,16 @@ conecta-nexus/
 
 Para clonar todos los microservicios o sincronizarlos con sus ramas remotas (`main` y `develop`), ejecuta el script de configuración desde la raíz del proyecto:
 
+Linux/macOS:
+
 ```bash
 ./setup/setup.sh
+```
+
+Windows:
+
+```powershell
+.\setup\setup.bat
 ```
 
 El script verificará cada uno de los 9 repositorios del ecosistema:
