@@ -1,0 +1,613 @@
+"id","repo","service","title","statement","rf","rb","cu","sprint","points","priority","assignees","acceptance_criteria","checklist","body"
+"HU-01","auth","auth","[AUTH] HU-01: User Registration and Multi-Role Assignment","As a new user (Student or Company), I want to register with my institutional/corporate email and secure credentials, so that I have personalized access according to my role.","RF01, RF03","RB-01 (Role segregation and secure password policy)","CU-01","Sprint 1","5","Must Have","anorak,nelson","#### Scenario 1: Successful Registration
+- **Given** a new visitor with an unregistered email and valid password
+- **When** they select their role (Student or Company) and submit the registration form
+- **Then** the system creates the account in `db_auth` with hashed password and confirms registration.
+
+#### Scenario 2: Duplicate Email
+- **Given** an existing registered email in the system
+- **When** a user attempts to register with that email
+- **Then** the system rejects registration and displays a duplicate email error message.","- [ ] Create user schema and SQLAlchemy/Pydantic models in `auth`
+- [ ] Implement bcrypt password hashing
+- [ ] Create `/api/v1/auth/register` endpoint
+- [ ] Add unit tests with pytest covering valid registration and duplicate email","### User Story Statement
+As a new user (Student or Company), I want to register with my institutional/corporate email and secure credentials, so that I have personalized access according to my role.
+
+### Traceability
+- **Service/Repo:** `auth`
+- **Requirements:** RF01, RF03
+- **Business Rules:** RB-01 (Role segregation and secure password policy)
+- **Use Case:** CU-01
+- **Sprint:** Sprint 1
+- **Story Points:** 5
+- **Priority:** Must Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Successful Registration
+- **Given** a new visitor with an unregistered email and valid password
+- **When** they select their role (Student or Company) and submit the registration form
+- **Then** the system creates the account in `db_auth` with hashed password and confirms registration.
+
+#### Scenario 2: Duplicate Email
+- **Given** an existing registered email in the system
+- **When** a user attempts to register with that email
+- **Then** the system rejects registration and displays a duplicate email error message.
+
+### Technical Checklist
+- [ ] Create user schema and SQLAlchemy/Pydantic models in `auth`
+- [ ] Implement bcrypt password hashing
+- [ ] Create `/api/v1/auth/register` endpoint
+- [ ] Add unit tests with pytest covering valid registration and duplicate email"
+"HU-02","auth","auth","[AUTH] HU-02: Secure Session Management and JWT Lifecycle","As a registered user, I want to securely log in and obtain JWT access and refresh tokens, so that my authenticated session is protected and verified across microservices.","RF02, RF05","RB-01 (Secure session revocation and stateless token validation)","CU-01","Sprint 1","5","Must Have","anorak,nelson","#### Scenario 1: Successful Login
+- **Given** a registered user with valid credentials
+- **When** they submit the login form with email and password
+- **Then** the system returns JWT access/refresh tokens with user role and active status.
+
+#### Scenario 2: Invalid Credentials
+- **Given** an invalid password or non-existent user email
+- **When** authentication is attempted
+- **Then** the system responds with HTTP 401 Unauthorized.
+
+#### Scenario 3: Explicit Logout
+- **Given** an active authenticated session
+- **When** the user logs out
+- **Then** the token is revoked and private route access is invalidated.","- [ ] Implement JWT generation, signing, and verification in `auth`
+- [ ] Create `/api/v1/auth/login` and `/api/v1/auth/logout` endpoints
+- [ ] Create `/api/v1/auth/verify` endpoint for API Gateway
+- [ ] Write unit tests for login success, failure, and token expiration","### User Story Statement
+As a registered user, I want to securely log in and obtain JWT access and refresh tokens, so that my authenticated session is protected and verified across microservices.
+
+### Traceability
+- **Service/Repo:** `auth`
+- **Requirements:** RF02, RF05
+- **Business Rules:** RB-01 (Secure session revocation and stateless token validation)
+- **Use Case:** CU-01
+- **Sprint:** Sprint 1
+- **Story Points:** 5
+- **Priority:** Must Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Successful Login
+- **Given** a registered user with valid credentials
+- **When** they submit the login form with email and password
+- **Then** the system returns JWT access/refresh tokens with user role and active status.
+
+#### Scenario 2: Invalid Credentials
+- **Given** an invalid password or non-existent user email
+- **When** authentication is attempted
+- **Then** the system responds with HTTP 401 Unauthorized.
+
+#### Scenario 3: Explicit Logout
+- **Given** an active authenticated session
+- **When** the user logs out
+- **Then** the token is revoked and private route access is invalidated.
+
+### Technical Checklist
+- [ ] Implement JWT generation, signing, and verification in `auth`
+- [ ] Create `/api/v1/auth/login` and `/api/v1/auth/logout` endpoints
+- [ ] Create `/api/v1/auth/verify` endpoint for API Gateway
+- [ ] Write unit tests for login success, failure, and token expiration"
+"HU-03","profile","profile","[PROFILE] HU-03: Habeas Data and Law 1581 Consent Registration","As a platform user, I must provide explicit and traceable consent for personal data processing under Colombian Law 1581 of 2012, so that my account complies with data protection regulations.","RF09","RB-05 (Traceable data consent prior to profile activation)","CU-02, CU-03","Sprint 1","5","Must Have","anorak,juan","#### Scenario 1: Explicit Consent Accepted
+- **Given** a newly registered user who has not accepted Law 1581 terms
+- **When** they check the consent box and submit the form
+- **Then** the system stores the timestamp and version of the consent in `db_profiles`.
+
+#### Scenario 2: Access Blocked without Consent
+- **Given** a user attempting to access private profile features without consent
+- **When** any profile interaction is requested
+- **Then** the system prompts the mandatory consent modal and halts execution.","- [ ] Create `HabeasDataConsent` Django model in `profile`
+- [ ] Create endpoint `/api/v1/profiles/consent/`
+- [ ] Implement middleware/serializer check for consent validation
+- [ ] Unit tests for consent submission and audit log verification","### User Story Statement
+As a platform user, I must provide explicit and traceable consent for personal data processing under Colombian Law 1581 of 2012, so that my account complies with data protection regulations.
+
+### Traceability
+- **Service/Repo:** `profile`
+- **Requirements:** RF09
+- **Business Rules:** RB-05 (Traceable data consent prior to profile activation)
+- **Use Case:** CU-02, CU-03
+- **Sprint:** Sprint 1
+- **Story Points:** 5
+- **Priority:** Must Have
+- **Code Owners:** @anorak @juan
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Explicit Consent Accepted
+- **Given** a newly registered user who has not accepted Law 1581 terms
+- **When** they check the consent box and submit the form
+- **Then** the system stores the timestamp and version of the consent in `db_profiles`.
+
+#### Scenario 2: Access Blocked without Consent
+- **Given** a user attempting to access private profile features without consent
+- **When** any profile interaction is requested
+- **Then** the system prompts the mandatory consent modal and halts execution.
+
+### Technical Checklist
+- [ ] Create `HabeasDataConsent` Django model in `profile`
+- [ ] Create endpoint `/api/v1/profiles/consent/`
+- [ ] Implement middleware/serializer check for consent validation
+- [ ] Unit tests for consent submission and audit log verification"
+"HU-04","profile","profile","[PROFILE] HU-04: Student Academic Profile and Semester Validation","As a student, I want to manage my academic profile (skills, active semester between 6th and 10th, and areas of interest) with immutable career code, so that companies can review my profile.","RF06, RF08, RF10","RB-02 (Semester 6-10 constraint) & RB-08 (Immutable career and student code)","CU-02","Sprint 1","8","Should Have","anorak,juan","#### Scenario 1: Valid Student Profile Update
+- **Given** an authenticated student in semester 6 to 10
+- **When** they update their technical skills, subjects, and interests
+- **Then** the profile updates successfully in `db_profiles`.
+
+#### Scenario 2: Immutable Student Code
+- **Given** a registered student profile with assigned student code
+- **When** a modification payload contains a different student code or career
+- **Then** the system rejects the modification under rule RB-08.
+
+#### Scenario 3: Semester Out of Range
+- **Given** an entered semester less than 6 or greater than 10
+- **When** the profile is saved
+- **Then** the system returns a validation error.","- [ ] Create `StudentProfile` Django model with validators in `profile`
+- [ ] Enforce immutability of `student_code` and `career` on update
+- [ ] Implement restricted public view serializer (excluding direct contact details)
+- [ ] Unit tests for semester boundary checks (semesters 1-5 rejected, 6-10 accepted)","### User Story Statement
+As a student, I want to manage my academic profile (skills, active semester between 6th and 10th, and areas of interest) with immutable career code, so that companies can review my profile.
+
+### Traceability
+- **Service/Repo:** `profile`
+- **Requirements:** RF06, RF08, RF10
+- **Business Rules:** RB-02 (Semester 6-10 constraint) & RB-08 (Immutable career and student code)
+- **Use Case:** CU-02
+- **Sprint:** Sprint 1
+- **Story Points:** 8
+- **Priority:** Should Have
+- **Code Owners:** @anorak @juan
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Valid Student Profile Update
+- **Given** an authenticated student in semester 6 to 10
+- **When** they update their technical skills, subjects, and interests
+- **Then** the profile updates successfully in `db_profiles`.
+
+#### Scenario 2: Immutable Student Code
+- **Given** a registered student profile with assigned student code
+- **When** a modification payload contains a different student code or career
+- **Then** the system rejects the modification under rule RB-08.
+
+#### Scenario 3: Semester Out of Range
+- **Given** an entered semester less than 6 or greater than 10
+- **When** the profile is saved
+- **Then** the system returns a validation error.
+
+### Technical Checklist
+- [ ] Create `StudentProfile` Django model with validators in `profile`
+- [ ] Enforce immutability of `student_code` and `career` on update
+- [ ] Implement restricted public view serializer (excluding direct contact details)
+- [ ] Unit tests for semester boundary checks (semesters 1-5 rejected, 6-10 accepted)"
+"HU-05","profile","profile","[PROFILE] HU-05: Company Corporate Profile and Tax ID Management","As a company representative, I want to configure my corporate profile with business name, Tax ID (NIT), sector, and website, so that students can verify institutional credibility.","RF07, RF08","RB-05 (Restricted corporate view without private contacts until match)","CU-03","Sprint 1","10","Should Have","anorak,juan","#### Scenario 1: Corporate Profile Registration
+- **Given** an authenticated user with Company role
+- **When** they complete company name, NIT, economic sector, and website
+- **Then** the corporate profile is saved and marked verified.
+
+#### Scenario 2: Restricted Public Profile View
+- **Given** an unauthenticated visitor or student viewing the company profile
+- **When** the public profile endpoint is requested
+- **Then** company overview is displayed while direct emails and phones remain hidden.","- [ ] Create `CompanyProfile` model with NIT validation in `profile`
+- [ ] Implement DRF serializer with field-level masking for private contacts
+- [ ] Create `/api/v1/profiles/company/` CRUD endpoints
+- [ ] Unit tests for corporate profile creation and public projection","### User Story Statement
+As a company representative, I want to configure my corporate profile with business name, Tax ID (NIT), sector, and website, so that students can verify institutional credibility.
+
+### Traceability
+- **Service/Repo:** `profile`
+- **Requirements:** RF07, RF08
+- **Business Rules:** RB-05 (Restricted corporate view without private contacts until match)
+- **Use Case:** CU-03
+- **Sprint:** Sprint 1
+- **Story Points:** 10
+- **Priority:** Should Have
+- **Code Owners:** @anorak @juan
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Corporate Profile Registration
+- **Given** an authenticated user with Company role
+- **When** they complete company name, NIT, economic sector, and website
+- **Then** the corporate profile is saved and marked verified.
+
+#### Scenario 2: Restricted Public Profile View
+- **Given** an unauthenticated visitor or student viewing the company profile
+- **When** the public profile endpoint is requested
+- **Then** company overview is displayed while direct emails and phones remain hidden.
+
+### Technical Checklist
+- [ ] Create `CompanyProfile` model with NIT validation in `profile`
+- [ ] Implement DRF serializer with field-level masking for private contacts
+- [ ] Create `/api/v1/profiles/company/` CRUD endpoints
+- [ ] Unit tests for corporate profile creation and public projection"
+"HU-06","challenge","challenge","[CHALLENGE] HU-06: Business Need and Challenge Publication","As a verified company, I want to publish real operational challenges detailing problem description, affected business process, and required skills, so that interested students can discover them.","RF11, RF14, RF15, RF16","RB-06 (Strict ownership: companies can only edit own challenges in Draft or Open)","CU-04","Sprint 2","8","Must Have","anorak,nelson","#### Scenario 1: Successful Challenge Publication
+- **Given** an authenticated company with complete profile
+- **When** they fill title, problem statement, required skills, and set status to 'Open'
+- **Then** the challenge is saved in `db_challenges` and becomes visible in the catalog.
+
+#### Scenario 2: Editing Restrictions
+- **Given** a challenge belonging to Company A
+- **When** Company B attempts to update or delete it
+- **Then** the system returns HTTP 403 Forbidden under rule RF15.","- [ ] Create `Challenge` model with state enum (Draft, Open, In Progress, Closed, Cancelled) in `challenge`
+- [ ] Implement FastAPI route `/api/v1/challenges/` with Pydantic validation
+- [ ] Enforce ownership checks on update/delete
+- [ ] Unit tests for challenge creation, state changes, and permission boundary","### User Story Statement
+As a verified company, I want to publish real operational challenges detailing problem description, affected business process, and required skills, so that interested students can discover them.
+
+### Traceability
+- **Service/Repo:** `challenge`
+- **Requirements:** RF11, RF14, RF15, RF16
+- **Business Rules:** RB-06 (Strict ownership: companies can only edit own challenges in Draft or Open)
+- **Use Case:** CU-04
+- **Sprint:** Sprint 2
+- **Story Points:** 8
+- **Priority:** Must Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Successful Challenge Publication
+- **Given** an authenticated company with complete profile
+- **When** they fill title, problem statement, required skills, and set status to 'Open'
+- **Then** the challenge is saved in `db_challenges` and becomes visible in the catalog.
+
+#### Scenario 2: Editing Restrictions
+- **Given** a challenge belonging to Company A
+- **When** Company B attempts to update or delete it
+- **Then** the system returns HTTP 403 Forbidden under rule RF15.
+
+### Technical Checklist
+- [ ] Create `Challenge` model with state enum (Draft, Open, In Progress, Closed, Cancelled) in `challenge`
+- [ ] Implement FastAPI route `/api/v1/challenges/` with Pydantic validation
+- [ ] Enforce ownership checks on update/delete
+- [ ] Unit tests for challenge creation, state changes, and permission boundary"
+"HU-07","challenge","challenge","[CHALLENGE] HU-07: Secure Technical Attachment Management","As a company, I want to attach PDF or image support documents (up to 10MB) to my challenge, so that students have accurate technical context.","RF12, RF18","RB-07 (Secure storage, authorized access, size <=10MB, PDF/Image only)","CU-04","Sprint 2","5","Should Have","anorak,nelson","#### Scenario 1: Valid File Upload
+- **Given** an open challenge owned by the company
+- **When** a valid PDF file under 10MB is uploaded
+- **Then** the file is streamed to Object Storage (MinIO/GCS) and linked via secure URI.
+
+#### Scenario 2: Oversized File Rejection
+- **Given** a file larger than 10MB
+- **When** upload is attempted
+- **Then** the system blocks the upload with HTTP 413 Payload Too Large.
+
+#### Scenario 3: Disallowed File Format
+- **Given** an executable or unsupported file extension
+- **When** upload is attempted
+- **Then** the system rejects the file with HTTP 415 Unsupported Media Type.","- [ ] Integrate MinIO/GCS client in FastAPI service `challenge`
+- [ ] Implement file size (<10MB) and MIME type validator
+- [ ] Create upload endpoint `/api/v1/challenges/{id}/attachments`
+- [ ] Unit tests for upload validation, signed URL generation, and size boundary","### User Story Statement
+As a company, I want to attach PDF or image support documents (up to 10MB) to my challenge, so that students have accurate technical context.
+
+### Traceability
+- **Service/Repo:** `challenge`
+- **Requirements:** RF12, RF18
+- **Business Rules:** RB-07 (Secure storage, authorized access, size <=10MB, PDF/Image only)
+- **Use Case:** CU-04
+- **Sprint:** Sprint 2
+- **Story Points:** 5
+- **Priority:** Should Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Valid File Upload
+- **Given** an open challenge owned by the company
+- **When** a valid PDF file under 10MB is uploaded
+- **Then** the file is streamed to Object Storage (MinIO/GCS) and linked via secure URI.
+
+#### Scenario 2: Oversized File Rejection
+- **Given** a file larger than 10MB
+- **When** upload is attempted
+- **Then** the system blocks the upload with HTTP 413 Payload Too Large.
+
+#### Scenario 3: Disallowed File Format
+- **Given** an executable or unsupported file extension
+- **When** upload is attempted
+- **Then** the system rejects the file with HTTP 415 Unsupported Media Type.
+
+### Technical Checklist
+- [ ] Integrate MinIO/GCS client in FastAPI service `challenge`
+- [ ] Implement file size (<10MB) and MIME type validator
+- [ ] Create upload endpoint `/api/v1/challenges/{id}/attachments`
+- [ ] Unit tests for upload validation, signed URL generation, and size boundary"
+"HU-08","challenge","challenge","[CHALLENGE] HU-08: Own Challenge Administration and Voluntary Closure","As a company, I want to edit, close, or cancel my open challenges with mandatory justification, so that my organization's portfolio remains accurate.","RF13, RF14, RF15, RF17","RB-06 (Mandatory closure justification)","CU-04","Sprint 2","5","Should Have","anorak,nelson","#### Scenario 1: Voluntary Closure with Reason
+- **Given** an open challenge owned by the company
+- **When** the company selects 'Close' and provides a justification
+- **Then** state transitions to 'Closed' and justification is recorded.
+
+#### Scenario 2: Closure without Reason Blocked
+- **Given** an open challenge
+- **When** closure is submitted with an empty reason
+- **Then** the system rejects the action with a validation error.","- [ ] Create endpoint `/api/v1/challenges/{id}/close`
+- [ ] Validate mandatory closure justification
+- [ ] Emit event on state change
+- [ ] Unit tests for challenge closure workflow","### User Story Statement
+As a company, I want to edit, close, or cancel my open challenges with mandatory justification, so that my organization's portfolio remains accurate.
+
+### Traceability
+- **Service/Repo:** `challenge`
+- **Requirements:** RF13, RF14, RF15, RF17
+- **Business Rules:** RB-06 (Mandatory closure justification)
+- **Use Case:** CU-04
+- **Sprint:** Sprint 2
+- **Story Points:** 5
+- **Priority:** Should Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Voluntary Closure with Reason
+- **Given** an open challenge owned by the company
+- **When** the company selects 'Close' and provides a justification
+- **Then** state transitions to 'Closed' and justification is recorded.
+
+#### Scenario 2: Closure without Reason Blocked
+- **Given** an open challenge
+- **When** closure is submitted with an empty reason
+- **Then** the system rejects the action with a validation error.
+
+### Technical Checklist
+- [ ] Create endpoint `/api/v1/challenges/{id}/close`
+- [ ] Validate mandatory closure justification
+- [ ] Emit event on state change
+- [ ] Unit tests for challenge closure workflow"
+"HU-09","challenge","challenge","[CHALLENGE] HU-09: Open Opportunity Catalog Exploration","As an authenticated student, I want to browse the catalog of open challenges and search by keywords, so that I can discover academic collaboration opportunities.","RF19, RF21","RB-05 (Hide direct contact details on catalog exploration)","CU-05","Sprint 2","8","Must Have","anorak,nelson","#### Scenario 1: Catalog Listing
+- **Given** an authenticated student viewing the catalog
+- **When** the catalog page loads
+- **Then** only challenges with status 'Open' are returned with summary cards.
+
+#### Scenario 2: Challenge Detail View
+- **Given** an open challenge in the catalog
+- **When** the student selects it
+- **Then** the full problem statement and requirements appear without company direct contact information.","- [ ] Create `/api/v1/challenges/catalog` endpoint with pagination in `challenge`
+- [ ] Implement detail view route `/api/v1/challenges/{id}/detail`
+- [ ] Ensure company private contacts are excluded from payload
+- [ ] Unit tests for catalog filtering by 'Open' status and pagination","### User Story Statement
+As an authenticated student, I want to browse the catalog of open challenges and search by keywords, so that I can discover academic collaboration opportunities.
+
+### Traceability
+- **Service/Repo:** `challenge`
+- **Requirements:** RF19, RF21
+- **Business Rules:** RB-05 (Hide direct contact details on catalog exploration)
+- **Use Case:** CU-05
+- **Sprint:** Sprint 2
+- **Story Points:** 8
+- **Priority:** Must Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Catalog Listing
+- **Given** an authenticated student viewing the catalog
+- **When** the catalog page loads
+- **Then** only challenges with status 'Open' are returned with summary cards.
+
+#### Scenario 2: Challenge Detail View
+- **Given** an open challenge in the catalog
+- **When** the student selects it
+- **Then** the full problem statement and requirements appear without company direct contact information.
+
+### Technical Checklist
+- [ ] Create `/api/v1/challenges/catalog` endpoint with pagination in `challenge`
+- [ ] Implement detail view route `/api/v1/challenges/{id}/detail`
+- [ ] Ensure company private contacts are excluded from payload
+- [ ] Unit tests for catalog filtering by 'Open' status and pagination"
+"HU-10","challenge","challenge","[CHALLENGE] HU-10: Reactive Multi-Criteria Filtering","As an authenticated student, I want to filter challenges by knowledge area, skills, and industry sector, so that I can quickly pinpoint relevant challenges.","RF20, RF22","RB-05 (Explicit empty-state messaging when no matches occur)","CU-05","Sprint 2","7","Should Have","anorak,nelson","#### Scenario 1: Filter Matches
+- **Given** an active catalog with multiple challenges
+- **When** a student filters by 'Machine Learning' and 'Healthcare'
+- **Then** only matching open challenges are returned.
+
+#### Scenario 2: No Matching Challenges
+- **Given** search criteria yielding zero results
+- **When** query executes
+- **Then** the API returns an empty list with an explicit 'No matching challenges found' metadata.","- [ ] Add multi-param query filters (area, skills, sector) to catalog endpoint
+- [ ] Implement index-backed search queries in PostgreSQL
+- [ ] Unit tests for multi-filter combinations and empty-state responses","### User Story Statement
+As an authenticated student, I want to filter challenges by knowledge area, skills, and industry sector, so that I can quickly pinpoint relevant challenges.
+
+### Traceability
+- **Service/Repo:** `challenge`
+- **Requirements:** RF20, RF22
+- **Business Rules:** RB-05 (Explicit empty-state messaging when no matches occur)
+- **Use Case:** CU-05
+- **Sprint:** Sprint 2
+- **Story Points:** 7
+- **Priority:** Should Have
+- **Code Owners:** @anorak @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Filter Matches
+- **Given** an active catalog with multiple challenges
+- **When** a student filters by 'Machine Learning' and 'Healthcare'
+- **Then** only matching open challenges are returned.
+
+#### Scenario 2: No Matching Challenges
+- **Given** search criteria yielding zero results
+- **When** query executes
+- **Then** the API returns an empty list with an explicit 'No matching challenges found' metadata.
+
+### Technical Checklist
+- [ ] Add multi-param query filters (area, skills, sector) to catalog endpoint
+- [ ] Implement index-backed search queries in PostgreSQL
+- [ ] Unit tests for multi-filter combinations and empty-state responses"
+"HU-11","application","application","[APPLICATION] HU-11: Submit Contact Application with Motivation Letter","As an eligible student (semesters 6-10), I want to submit a contact application with a motivation letter to an open challenge, so that the company can evaluate my academic proposal.","RF23, RF24, RF28","RB-02 (Semester verification 6-10) & RB-03 (Single active application per challenge)","CU-06","Sprint 3","8","Must Have","anorak,juan","#### Scenario 1: Valid Application Submission
+- **Given** an eligible student in semester 6-10 with no active applications to this challenge
+- **When** they submit a motivation letter
+- **Then** the application is recorded in status 'Pending' in `db_applications`.
+
+#### Scenario 2: Duplicate Application Blocked
+- **Given** a student who already submitted an active application to a challenge
+- **When** they attempt to submit a second application to the same challenge
+- **Then** the system rejects it under rule RB-03.
+
+#### Scenario 3: Ineligible Student
+- **Given** a student in semester 1 to 5
+- **When** they attempt to submit an application
+- **Then** the system blocks the action citing semester ineligibility.","- [ ] Create `Application` Django model with unique constraint (student_id, challenge_id) in `application`
+- [ ] Add inter-service synchronous check to `profile` for semester validation
+- [ ] Create `/api/v1/applications/` endpoint
+- [ ] Emit `ApplicationCreated` event to event broker
+- [ ] Unit tests for submission, non-duplicity constraint, and semester validation","### User Story Statement
+As an eligible student (semesters 6-10), I want to submit a contact application with a motivation letter to an open challenge, so that the company can evaluate my academic proposal.
+
+### Traceability
+- **Service/Repo:** `application`
+- **Requirements:** RF23, RF24, RF28
+- **Business Rules:** RB-02 (Semester verification 6-10) & RB-03 (Single active application per challenge)
+- **Use Case:** CU-06
+- **Sprint:** Sprint 3
+- **Story Points:** 8
+- **Priority:** Must Have
+- **Code Owners:** @anorak @juan
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Valid Application Submission
+- **Given** an eligible student in semester 6-10 with no active applications to this challenge
+- **When** they submit a motivation letter
+- **Then** the application is recorded in status 'Pending' in `db_applications`.
+
+#### Scenario 2: Duplicate Application Blocked
+- **Given** a student who already submitted an active application to a challenge
+- **When** they attempt to submit a second application to the same challenge
+- **Then** the system rejects it under rule RB-03.
+
+#### Scenario 3: Ineligible Student
+- **Given** a student in semester 1 to 5
+- **When** they attempt to submit an application
+- **Then** the system blocks the action citing semester ineligibility.
+
+### Technical Checklist
+- [ ] Create `Application` Django model with unique constraint (student_id, challenge_id) in `application`
+- [ ] Add inter-service synchronous check to `profile` for semester validation
+- [ ] Create `/api/v1/applications/` endpoint
+- [ ] Emit `ApplicationCreated` event to event broker
+- [ ] Unit tests for submission, non-duplicity constraint, and semester validation"
+"HU-12","application","application","[APPLICATION] HU-12: Company Evaluation and Atomic State Transition","As a company, I want to review applications and accept (locking challenge to 'In Progress' and revealing contacts) or reject (requiring mandatory feedback), so that match decisions are formalized.","RF25, RF26, RF27, RF31","RB-04 (Atomic lock to 'In Progress') & RB-05 (Reciprocal contact reveal upon acceptance)","CU-07","Sprint 3","10","Must Have","anorak,juan","#### Scenario 1: Application Acceptance
+- **Given** an open challenge with pending applications
+- **When** the company accepts Student A's application
+- **Then** the challenge atomically transitions to 'In Progress', new applications are blocked, and direct contact details are revealed to both parties.
+
+#### Scenario 2: Application Rejection with Reason
+- **Given** a pending application
+- **When** the company rejects it with a mandatory explanation
+- **Then** status becomes 'Rejected', reason is saved, and challenge remains 'Open'.
+
+#### Scenario 3: Rejection without Reason Blocked
+- **Given** a rejection attempt without explanation text
+- **When** submitted
+- **Then** the action is rejected with validation error.","- [ ] Implement `accept` endpoint with atomic transaction and challenge lock in `application`
+- [ ] Implement `reject` endpoint requiring non-empty `feedback_reason`
+- [ ] Expose contact details conditionally only for accepted applications
+- [ ] Emit `ApplicationAccepted` and `ApplicationRejected` domain events
+- [ ] Unit tests covering race conditions, atomic lock, and mandatory rejection feedback","### User Story Statement
+As a company, I want to review applications and accept (locking challenge to 'In Progress' and revealing contacts) or reject (requiring mandatory feedback), so that match decisions are formalized.
+
+### Traceability
+- **Service/Repo:** `application`
+- **Requirements:** RF25, RF26, RF27, RF31
+- **Business Rules:** RB-04 (Atomic lock to 'In Progress') & RB-05 (Reciprocal contact reveal upon acceptance)
+- **Use Case:** CU-07
+- **Sprint:** Sprint 3
+- **Story Points:** 10
+- **Priority:** Must Have
+- **Code Owners:** @anorak @juan
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Application Acceptance
+- **Given** an open challenge with pending applications
+- **When** the company accepts Student A's application
+- **Then** the challenge atomically transitions to 'In Progress', new applications are blocked, and direct contact details are revealed to both parties.
+
+#### Scenario 2: Application Rejection with Reason
+- **Given** a pending application
+- **When** the company rejects it with a mandatory explanation
+- **Then** status becomes 'Rejected', reason is saved, and challenge remains 'Open'.
+
+#### Scenario 3: Rejection without Reason Blocked
+- **Given** a rejection attempt without explanation text
+- **When** submitted
+- **Then** the action is rejected with validation error.
+
+### Technical Checklist
+- [ ] Implement `accept` endpoint with atomic transaction and challenge lock in `application`
+- [ ] Implement `reject` endpoint requiring non-empty `feedback_reason`
+- [ ] Expose contact details conditionally only for accepted applications
+- [ ] Emit `ApplicationAccepted` and `ApplicationRejected` domain events
+- [ ] Unit tests covering race conditions, atomic lock, and mandatory rejection feedback"
+"HU-13","notification","notification","[NOTIFICATION] HU-13: Asynchronous Domain Alerts and SMTP Emailing","As a platform participant, I want to receive automated email notifications when applications are created or decided, so that I stay informed asynchronously.","RF29, RF30","RNF06 (SMTP fault tolerance and idempotent delivery)","CU-08","Sprint 3","8","Should Have","juan,nelson","#### Scenario 1: Application Created Notification
+- **Given** an `ApplicationCreated` event
+- **When** consumed by notification worker
+- **Then** a transactional email is dispatched to the company with application details.
+
+#### Scenario 2: Application Decision Notification
+- **Given** an `ApplicationAccepted` or `ApplicationRejected` event
+- **When** consumed
+- **Then** a notification is dispatched to the student with the outcome and feedback/contacts.","- [ ] Build event consumer in FastAPI/Worker service `notification`
+- [ ] Integrate Mailpit (local) / SMTP server with retry policy and idempotency
+- [ ] Create responsive HTML email templates for application events
+- [ ] Unit tests for event deserialization and email dispatch handling","### User Story Statement
+As a platform participant, I want to receive automated email notifications when applications are created or decided, so that I stay informed asynchronously.
+
+### Traceability
+- **Service/Repo:** `notification`
+- **Requirements:** RF29, RF30
+- **Business Rules:** RNF06 (SMTP fault tolerance and idempotent delivery)
+- **Use Case:** CU-08
+- **Sprint:** Sprint 3
+- **Story Points:** 8
+- **Priority:** Should Have
+- **Code Owners:** @juan @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Application Created Notification
+- **Given** an `ApplicationCreated` event
+- **When** consumed by notification worker
+- **Then** a transactional email is dispatched to the company with application details.
+
+#### Scenario 2: Application Decision Notification
+- **Given** an `ApplicationAccepted` or `ApplicationRejected` event
+- **When** consumed
+- **Then** a notification is dispatched to the student with the outcome and feedback/contacts.
+
+### Technical Checklist
+- [ ] Build event consumer in FastAPI/Worker service `notification`
+- [ ] Integrate Mailpit (local) / SMTP server with retry policy and idempotency
+- [ ] Create responsive HTML email templates for application events
+- [ ] Unit tests for event deserialization and email dispatch handling"
+"HU-14","moderation","moderation","[MODERATION] HU-14: Platform Governance and Institutional Audit Log","As an administrator, I want to supervise, suspend, or take down non-compliant challenges or accounts, and keep immutable audit logs, so that academic integrity is upheld.","RF32","RNF03 (Immutable audit logging)","CU-09","Sprint 3","8","Should Have","juan,nelson","#### Scenario 1: Challenge Suspension
+- **Given** a reported or non-compliant challenge
+- **When** the administrator suspends it via Django Admin
+- **Then** its status changes to 'Suspended', it is hidden from catalog, and an immutable log entry is generated.
+
+#### Scenario 2: Immutable Audit Log
+- **Given** any administrative action
+- **When** executed
+- **Then** user ID, target entity, timestamp, and justification are permanently recorded.","- [ ] Configure custom Django Admin interface in `moderation`
+- [ ] Create `AuditLog` model with append-only permissions
+- [ ] Implement inter-service suspension webhook/event to `challenge` and `auth`
+- [ ] Unit tests for admin action logging and suspension rules","### User Story Statement
+As an administrator, I want to supervise, suspend, or take down non-compliant challenges or accounts, and keep immutable audit logs, so that academic integrity is upheld.
+
+### Traceability
+- **Service/Repo:** `moderation`
+- **Requirements:** RF32
+- **Business Rules:** RNF03 (Immutable audit logging)
+- **Use Case:** CU-09
+- **Sprint:** Sprint 3
+- **Story Points:** 8
+- **Priority:** Should Have
+- **Code Owners:** @juan @nelson
+
+### Acceptance Criteria (Gherkin)
+#### Scenario 1: Challenge Suspension
+- **Given** a reported or non-compliant challenge
+- **When** the administrator suspends it via Django Admin
+- **Then** its status changes to 'Suspended', it is hidden from catalog, and an immutable log entry is generated.
+
+#### Scenario 2: Immutable Audit Log
+- **Given** any administrative action
+- **When** executed
+- **Then** user ID, target entity, timestamp, and justification are permanently recorded.
+
+### Technical Checklist
+- [ ] Configure custom Django Admin interface in `moderation`
+- [ ] Create `AuditLog` model with append-only permissions
+- [ ] Implement inter-service suspension webhook/event to `challenge` and `auth`
+- [ ] Unit tests for admin action logging and suspension rules"

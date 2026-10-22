@@ -1,0 +1,232 @@
+# ==============================================================================
+# Conecta Nexus - Local Development Podman / Docker Compose Orchestration
+# ==============================================================================
+# Usage:
+#   podman compose up --build
+#   podman compose up --build -d
+#   podman compose down
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # PostgreSQL (Multi-database support for microservices)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: conecta-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:Z
+      - ./setup/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro,Z
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Auth (FastAPI + uv)
+  # ----------------------------------------------------------------------------
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: conecta-auth
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./auth:/app:Z
+    env_file:
+      - ./auth/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/db_auth
+      - DB_ECHO=false
+      - APP_ENV=development
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Profile (Django + DRF + uv)
+  # ----------------------------------------------------------------------------
+  profile:
+    build:
+      context: ./profile
+      dockerfile: Dockerfile
+    container_name: conecta-profile
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./profile:/app:Z
+    env_file:
+      - ./profile/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_profiles
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Application (Django + DRF + uv)
+  # ----------------------------------------------------------------------------
+  application:
+    build:
+      context: ./application
+      dockerfile: Dockerfile
+    container_name: conecta-application
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./application:/app:Z
+    env_file:
+      - ./application/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_applications
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Challenge (FastAPI + uv)
+  # ----------------------------------------------------------------------------
+  challenge:
+    build:
+      context: ./challenge
+      dockerfile: Dockerfile
+    container_name: conecta-challenge
+    restart: unless-stopped
+    ports:
+      - "8004:8000"
+    volumes:
+      - ./challenge:/app:Z
+    env_file:
+      - ./challenge/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_challenges
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Moderation (Django + DRF + uv)
+  # ----------------------------------------------------------------------------
+  moderation:
+    build:
+      context: ./moderation
+      dockerfile: Dockerfile
+    container_name: conecta-moderation
+    restart: unless-stopped
+    ports:
+      - "8005:8000"
+    volumes:
+      - ./moderation:/app:Z
+    env_file:
+      - ./moderation/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_moderation
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Microservice: Notification (FastAPI + uv)
+  # ----------------------------------------------------------------------------
+  notification:
+    build:
+      context: ./notification
+      dockerfile: Dockerfile
+    container_name: conecta-notification
+    restart: unless-stopped
+    ports:
+      - "8006:8000"
+    volumes:
+      - ./notification:/app:Z
+    env_file:
+      - ./notification/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_notifications
+    depends_on:
+      - postgres
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Frontend: Nuxt 4 (Vue 3, Vite, Tailwind CSS, pnpm)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: conecta-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app:Z
+      - /app/node_modules
+      - /app/.nuxt
+    env_file:
+      - ./frontend/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+      - NODE_ENV=development
+      - NUXT_PUBLIC_API_BASE=http://localhost:8080/api/v1
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # API Gateway: Nginx Reverse Proxy
+  # ----------------------------------------------------------------------------
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: conecta-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./gateway/conf.d:/etc/nginx/conf.d:ro,Z
+      - ./auth/certs/jwt_public.pem:/etc/nginx/certs/jwt_public.pem:ro,Z
+    env_file:
+      - ./gateway/.env
+    depends_on:
+      - frontend
+      - auth
+      - profile
+      - application
+      - challenge
+      - moderation
+      - notification
+    networks:
+      - conecta-net
+
+# ==============================================================================
+# Persistent Volumes & Networks
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  conecta-net:
+    driver: bridge
