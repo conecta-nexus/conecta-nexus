@@ -1,0 +1,1281 @@
+"task_id","repo","service","parent_story","parent_issue_number","title","assignee","labels","objective","specs","deliverables","verification","body"
+"CHALLENGE-TASK-01","challenge","challenge","HU-06","1","[CHALLENGE-TASK-01] Database Engine & Connection Configuration","NelsonConde","task,sprint-2","Configure the async SQLAlchemy engine, connection pool, session factory, and pydantic-settings configuration for db_challenges on PostgreSQL 16.","- Database: PostgreSQL 16 (db_challenges)
+- Engine: SQLAlchemy async engine (create_async_engine) with asyncpg driver
+- Pool: pool_size=10, max_overflow=20, pool_pre_ping=True
+- Configuration: pydantic-settings BaseSettings loading DATABASE_URL, DB_ECHO, APP_ENV
+- Target Files: src/core/config.py, src/core/database.py","- [ ] Implement Settings class in src/core/config.py using pydantic-settings
+- [ ] Configure async_engine and async_sessionmaker in src/core/database.py
+- [ ] Provide get_db async generator dependency for FastAPI routers
+- [ ] Unit tests verifying database connection and session yield","uv run python -c 'from src.core.database import async_engine; print(async_engine)'","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Configure the async SQLAlchemy engine, connection pool, session factory, and pydantic-settings configuration for db_challenges on PostgreSQL 16.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Database: PostgreSQL 16 (db_challenges)
+- Engine: SQLAlchemy async engine (create_async_engine) with asyncpg driver
+- Pool: pool_size=10, max_overflow=20, pool_pre_ping=True
+- Configuration: pydantic-settings BaseSettings loading DATABASE_URL, DB_ECHO, APP_ENV
+- Target Files: src/core/config.py, src/core/database.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Implement Settings class in src/core/config.py using pydantic-settings
+- [ ] Configure async_engine and async_sessionmaker in src/core/database.py
+- [ ] Provide get_db async generator dependency for FastAPI routers
+- [ ] Unit tests verifying database connection and session yield
+
+---
+
+### 5. Verification Command
+```bash
+uv run python -c 'from src.core.database import async_engine; print(async_engine)'
+```"
+"CHALLENGE-TASK-02","challenge","challenge","HU-06","1","[CHALLENGE-TASK-02] Stateless RS256 JWT Authentication & Scopes RBAC (ADR-002)","AnorakTeam","task,sprint-2","Implement stateless RS256 JWT token verification (ADR-002) using the RSA public key and role-based scope dependencies in FastAPI.","- ADR-002: Stateless token validation using RSA public key (jwt_public.pem), no database lookup to auth
+- Token Claims: sub (User UUID), role (COMPANY, STUDENT, ADMIN), scope (list of strings), exp, iss, aud
+- Dependencies: get_current_user, require_role(role: str), require_scope(scope: str)
+- Target Files: src/core/security.py, src/core/dependencies.py","- [ ] RSA public key loader in src/core/security.py
+- [ ] decode_token utility validating signature, issuer, and expiration
+- [ ] FastAPI security dependencies for role and scope enforcement
+- [ ] Unit tests verifying valid token decoding, expired token rejection, and role matching","uv run pytest tests/test_security.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement stateless RS256 JWT token verification (ADR-002) using the RSA public key and role-based scope dependencies in FastAPI.
+
+---
+
+### 3. Technical Specifications & Constraints
+- ADR-002: Stateless token validation using RSA public key (jwt_public.pem), no database lookup to auth
+- Token Claims: sub (User UUID), role (COMPANY, STUDENT, ADMIN), scope (list of strings), exp, iss, aud
+- Dependencies: get_current_user, require_role(role: str), require_scope(scope: str)
+- Target Files: src/core/security.py, src/core/dependencies.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] RSA public key loader in src/core/security.py
+- [ ] decode_token utility validating signature, issuer, and expiration
+- [ ] FastAPI security dependencies for role and scope enforcement
+- [ ] Unit tests verifying valid token decoding, expired token rejection, and role matching
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_security.py
+```"
+"CHALLENGE-TASK-03","challenge","challenge","HU-06","1","[CHALLENGE-TASK-03] Challenge Database Model & PostgreSQL Constraints","NelsonConde","task,sprint-2","Implement the Challenge SQLAlchemy model in db_challenges with state enums, JSONB skills, semester check constraints, and Alembic migrations.","- Table: challenges in db_challenges
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * company_id: UUID (NOT NULL, indexed)
+  * title: VARCHAR(255) (NOT NULL)
+  * description: TEXT (NOT NULL)
+  * business_process: VARCHAR(255) (NOT NULL)
+  * status: VARCHAR(20) (NOT NULL, CHECK status IN ('DRAFT', 'OPEN', 'IN_PROGRESS', 'CLOSED', 'CANCELLED'), DEFAULT 'DRAFT')
+  * difficulty_level: VARCHAR(20) (NOT NULL, CHECK difficulty_level IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED'))
+  * modality: VARCHAR(20) (NOT NULL, CHECK modality IN ('REMOTE', 'HYBRID', 'ON_SITE'))
+  * min_semester: INTEGER (NOT NULL, CHECK min_semester BETWEEN 6 AND 10, DEFAULT 6)
+  * economic_sector: VARCHAR(100) (NOT NULL)
+  * required_skills: JSONB (NOT NULL, DEFAULT '[]')
+  * knowledge_areas: JSONB (NOT NULL, DEFAULT '[]')
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  * updated_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/challenge.py, alembic/versions/001_create_challenges_table.py","- [ ] Declarative SQLAlchemy model for Challenge with all column types and CHECK constraints
+- [ ] Configure Alembic environment reading models
+- [ ] Initial migration generated and applied cleanly against PostgreSQL
+- [ ] Model unit tests verifying constraints, defaults, and enums","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement the Challenge SQLAlchemy model in db_challenges with state enums, JSONB skills, semester check constraints, and Alembic migrations.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: challenges in db_challenges
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * company_id: UUID (NOT NULL, indexed)
+  * title: VARCHAR(255) (NOT NULL)
+  * description: TEXT (NOT NULL)
+  * business_process: VARCHAR(255) (NOT NULL)
+  * status: VARCHAR(20) (NOT NULL, CHECK status IN ('DRAFT', 'OPEN', 'IN_PROGRESS', 'CLOSED', 'CANCELLED'), DEFAULT 'DRAFT')
+  * difficulty_level: VARCHAR(20) (NOT NULL, CHECK difficulty_level IN ('BEGINNER', 'INTERMEDIATE', 'ADVANCED'))
+  * modality: VARCHAR(20) (NOT NULL, CHECK modality IN ('REMOTE', 'HYBRID', 'ON_SITE'))
+  * min_semester: INTEGER (NOT NULL, CHECK min_semester BETWEEN 6 AND 10, DEFAULT 6)
+  * economic_sector: VARCHAR(100) (NOT NULL)
+  * required_skills: JSONB (NOT NULL, DEFAULT '[]')
+  * knowledge_areas: JSONB (NOT NULL, DEFAULT '[]')
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+  * updated_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/challenge.py, alembic/versions/001_create_challenges_table.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Declarative SQLAlchemy model for Challenge with all column types and CHECK constraints
+- [ ] Configure Alembic environment reading models
+- [ ] Initial migration generated and applied cleanly against PostgreSQL
+- [ ] Model unit tests verifying constraints, defaults, and enums
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"CHALLENGE-TASK-04","challenge","challenge","HU-06","1","[CHALLENGE-TASK-04] Challenge Pydantic v2 Schemas & Repository","NelsonConde","task,sprint-2","Create Pydantic v2 schemas for challenge creation, update, and inspection, and implement the ChallengeRepository for asynchronous database persistence.","- Schemas:
+  * ChallengeCreate: title, description, business_process, difficulty_level, modality, min_semester (6-10), economic_sector, required_skills, knowledge_areas, optional status ('DRAFT' or 'OPEN')
+  * ChallengeUpdate: optional fields, status changes restricted
+  * ChallengeResponse: full company view with id, company_id, status, created_at, updated_at
+- Repository: ChallengeRepository
+  * create(db, challenge_in: ChallengeCreate, company_id: UUID) -> Challenge
+  * get_by_id(db, challenge_id: UUID) -> Challenge | None
+  * update(db, db_obj: Challenge, obj_in: ChallengeUpdate) -> Challenge
+  * list_by_company(db, company_id: UUID, skip: int, limit: int) -> list[Challenge]
+- Target Files: src/schemas/challenge.py, src/repositories/challenge_repository.py","- [ ] Pydantic v2 schemas with strict field and semester boundary validation
+- [ ] ChallengeRepository with async SQLAlchemy select and commit operations
+- [ ] Unit tests for schema serialization and repository CRUD methods","uv run pytest tests/test_challenge_repository.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Create Pydantic v2 schemas for challenge creation, update, and inspection, and implement the ChallengeRepository for asynchronous database persistence.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Schemas:
+  * ChallengeCreate: title, description, business_process, difficulty_level, modality, min_semester (6-10), economic_sector, required_skills, knowledge_areas, optional status ('DRAFT' or 'OPEN')
+  * ChallengeUpdate: optional fields, status changes restricted
+  * ChallengeResponse: full company view with id, company_id, status, created_at, updated_at
+- Repository: ChallengeRepository
+  * create(db, challenge_in: ChallengeCreate, company_id: UUID) -> Challenge
+  * get_by_id(db, challenge_id: UUID) -> Challenge | None
+  * update(db, db_obj: Challenge, obj_in: ChallengeUpdate) -> Challenge
+  * list_by_company(db, company_id: UUID, skip: int, limit: int) -> list[Challenge]
+- Target Files: src/schemas/challenge.py, src/repositories/challenge_repository.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Pydantic v2 schemas with strict field and semester boundary validation
+- [ ] ChallengeRepository with async SQLAlchemy select and commit operations
+- [ ] Unit tests for schema serialization and repository CRUD methods
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_challenge_repository.py
+```"
+"CHALLENGE-TASK-05","challenge","challenge","HU-06","1","[CHALLENGE-TASK-05] Challenge Publication & Ownership Protection Endpoint","AnorakTeam","task,sprint-2","Expose challenge creation and edition endpoints, enforcing strict company ownership (RB-06 / RF15) and limiting modifications to Draft or Open states.","- Endpoints:
+  * POST /api/v1/challenges/: Create challenge for authenticated COMPANY (201 Created)
+  * GET /api/v1/challenges/{id}: Private full challenge details for owner
+  * PATCH /api/v1/challenges/{id}: Update challenge details
+- Business Rules:
+  * Only users with role COMPANY can create challenges
+  * RB-06: Companies can only edit their own challenges (company_id == user.id), returning HTTP 403 Forbidden if another company attempts access
+  * RB-06: Modifications only permitted while challenge is in DRAFT or OPEN status (HTTP 422 Unprocessable Entity if IN_PROGRESS or CLOSED)
+- Target Files: src/routers/challenges.py, src/services/challenge_service.py","- [ ] POST /api/v1/challenges/ route with company role requirement
+- [ ] Ownership verification service logic protecting PATCH and GET routes
+- [ ] State mutability check blocking edits on closed or in-progress challenges
+- [ ] Integration tests verifying successful creation, 403 ownership rejection, and state locking","uv run pytest tests/test_challenge_endpoints.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Expose challenge creation and edition endpoints, enforcing strict company ownership (RB-06 / RF15) and limiting modifications to Draft or Open states.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  * POST /api/v1/challenges/: Create challenge for authenticated COMPANY (201 Created)
+  * GET /api/v1/challenges/{id}: Private full challenge details for owner
+  * PATCH /api/v1/challenges/{id}: Update challenge details
+- Business Rules:
+  * Only users with role COMPANY can create challenges
+  * RB-06: Companies can only edit their own challenges (company_id == user.id), returning HTTP 403 Forbidden if another company attempts access
+  * RB-06: Modifications only permitted while challenge is in DRAFT or OPEN status (HTTP 422 Unprocessable Entity if IN_PROGRESS or CLOSED)
+- Target Files: src/routers/challenges.py, src/services/challenge_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST /api/v1/challenges/ route with company role requirement
+- [ ] Ownership verification service logic protecting PATCH and GET routes
+- [ ] State mutability check blocking edits on closed or in-progress challenges
+- [ ] Integration tests verifying successful creation, 403 ownership rejection, and state locking
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_challenge_endpoints.py
+```"
+"FRONTEND-TASK-01","frontend","frontend","HU-06","1","[FRONTEND-TASK-01] Challenge TypeScript Interfaces & useChallenges Composable","AnorakTeam","task,sprint-2","Create TypeScript interfaces for challenges, attachments, and filters, and implement the reactive useChallenges composable for API communication.","- TypeScript Interfaces: app/types/challenge.ts (Challenge, ChallengeCreatePayload, ChallengeUpdatePayload, ChallengeStatus, Attachment, CatalogFilters, CatalogPagination)
+- Composable: app/composables/useChallenges.ts wrapping useApi()
+  * createChallenge(payload): POST /challenges/
+  * updateChallenge(id, payload): PATCH /challenges/{id}
+  * fetchCompanyChallenges(status?): GET /challenges/company/me
+  * fetchChallengeDetail(id): GET /challenges/{id}
+- Target Files: app/types/challenge.ts, app/composables/useChallenges.ts","- [ ] Define complete TypeScript models matching challenge microservice schemas
+- [ ] Implement useChallenges composable with error handling and reactive state
+- [ ] Token authentication header injection via useApi integration
+- [ ] Typecheck and lint pass without warnings","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Create TypeScript interfaces for challenges, attachments, and filters, and implement the reactive useChallenges composable for API communication.
+
+---
+
+### 3. Technical Specifications & Constraints
+- TypeScript Interfaces: app/types/challenge.ts (Challenge, ChallengeCreatePayload, ChallengeUpdatePayload, ChallengeStatus, Attachment, CatalogFilters, CatalogPagination)
+- Composable: app/composables/useChallenges.ts wrapping useApi()
+  * createChallenge(payload): POST /challenges/
+  * updateChallenge(id, payload): PATCH /challenges/{id}
+  * fetchCompanyChallenges(status?): GET /challenges/company/me
+  * fetchChallengeDetail(id): GET /challenges/{id}
+- Target Files: app/types/challenge.ts, app/composables/useChallenges.ts
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Define complete TypeScript models matching challenge microservice schemas
+- [ ] Implement useChallenges composable with error handling and reactive state
+- [ ] Token authentication header injection via useApi integration
+- [ ] Typecheck and lint pass without warnings
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"FRONTEND-TASK-02","frontend","frontend","HU-06","1","[FRONTEND-TASK-02] Company Challenge Creation Form Page (/challenges/new)","NelsonConde","task,sprint-2","Build the challenge publishing page with multi-field forms, Tiptap rich-text problem description, tags selector, and company role guard.","- Route: app/pages/challenges/new.vue
+- Form Components: title, problem description (Tiptap markdown), business process, modality, difficulty level, min semester (6-10), economic sector, skills tag selector
+- Role Guard: Nuxt middleware redirecting non-company users with toast notification
+- Actions: 'Save as Draft' and 'Publish Challenge' triggers
+- Target Files: app/pages/challenges/new.vue, app/components/challenges/ChallengeForm.vue","- [ ] Nuxt page challenges/new.vue with auth/role protection
+- [ ] Form component with client-side validation for required fields
+- [ ] Interactive tag chips input for required technical skills
+- [ ] Successful submission redirecting to company challenge management","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Build the challenge publishing page with multi-field forms, Tiptap rich-text problem description, tags selector, and company role guard.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Route: app/pages/challenges/new.vue
+- Form Components: title, problem description (Tiptap markdown), business process, modality, difficulty level, min semester (6-10), economic sector, skills tag selector
+- Role Guard: Nuxt middleware redirecting non-company users with toast notification
+- Actions: 'Save as Draft' and 'Publish Challenge' triggers
+- Target Files: app/pages/challenges/new.vue, app/components/challenges/ChallengeForm.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Nuxt page challenges/new.vue with auth/role protection
+- [ ] Form component with client-side validation for required fields
+- [ ] Interactive tag chips input for required technical skills
+- [ ] Successful submission redirecting to company challenge management
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"INFRA-TASK-01","infra","infra","HU-06","1","[INFRA-TASK-01] Cloud Run Terraform Provisioning for Challenge Service","NelsonConde","task,sprint-2","Define the Google Cloud Run v2 service resource for challenge in Terraform with Cloud SQL instance connection, VPC connector, environment variables, and autoscaling.","- Target File: infra/cloud_run.tf, infra/variables.tf
+- Resource: google_cloud_run_v2_service.challenge
+- Image: ${var.region}-docker.pkg.dev/${var.project_id}/conecta-nexus-repo/challenge:latest
+- Cloud SQL volume mount: db_challenges on instance google_sql_database_instance.postgres
+- Scaling: min_instance_count = 0, max_instance_count = 5, cpu = '1', memory = '512Mi'
+- IAM: roles/run.invoker for Gateway service account","- [ ] Add google_cloud_run_v2_service.challenge to infra/cloud_run.tf
+- [ ] Configure environment variables (DATABASE_URL, APP_ENV, JWT_PUBLIC_KEY_PATH)
+- [ ] Cloud SQL connection attachment
+- [ ] Terraform plan validation passes cleanly","cd infra && terraform validate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `infra`
+- **Parent User Story:** HU-06 (Closes part of conecta-nexus/challenge#1)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Define the Google Cloud Run v2 service resource for challenge in Terraform with Cloud SQL instance connection, VPC connector, environment variables, and autoscaling.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target File: infra/cloud_run.tf, infra/variables.tf
+- Resource: google_cloud_run_v2_service.challenge
+- Image: ${var.region}-docker.pkg.dev/${var.project_id}/conecta-nexus-repo/challenge:latest
+- Cloud SQL volume mount: db_challenges on instance google_sql_database_instance.postgres
+- Scaling: min_instance_count = 0, max_instance_count = 5, cpu = '1', memory = '512Mi'
+- IAM: roles/run.invoker for Gateway service account
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Add google_cloud_run_v2_service.challenge to infra/cloud_run.tf
+- [ ] Configure environment variables (DATABASE_URL, APP_ENV, JWT_PUBLIC_KEY_PATH)
+- [ ] Cloud SQL connection attachment
+- [ ] Terraform plan validation passes cleanly
+
+---
+
+### 5. Verification Command
+```bash
+cd infra && terraform validate
+```"
+"CHALLENGE-TASK-06","challenge","challenge","HU-07","2","[CHALLENGE-TASK-06] Object Storage Client & Storage Service (MinIO/GCS)","juandiegosb","task,sprint-2","Integrate MinIO/GCS object storage client into FastAPI to handle file uploads, byte streaming, and presigned/signed download URL generation.","- Provider: S3-compatible MinIO client (or Google Cloud Storage client) via aioboto3 or minio SDK
+- Bucket: challenge-attachments
+- Operations:
+  * upload_file(file_obj, destination_path: str, content_type: str) -> str
+  * generate_signed_url(storage_path: str, expires_in_seconds: int = 3600) -> str
+  * delete_file(storage_path: str) -> bool
+- Target Files: src/core/storage.py, src/services/storage_service.py","- [ ] Storage client initialization and connection pooling in src/core/storage.py
+- [ ] StorageService class with upload, signed URL, and delete methods
+- [ ] Local MinIO container / bucket auto-initialization hook
+- [ ] Unit tests with mock storage client validating file streaming and signed URL generation","uv run pytest tests/test_storage_service.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Integrate MinIO/GCS object storage client into FastAPI to handle file uploads, byte streaming, and presigned/signed download URL generation.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Provider: S3-compatible MinIO client (or Google Cloud Storage client) via aioboto3 or minio SDK
+- Bucket: challenge-attachments
+- Operations:
+  * upload_file(file_obj, destination_path: str, content_type: str) -> str
+  * generate_signed_url(storage_path: str, expires_in_seconds: int = 3600) -> str
+  * delete_file(storage_path: str) -> bool
+- Target Files: src/core/storage.py, src/services/storage_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Storage client initialization and connection pooling in src/core/storage.py
+- [ ] StorageService class with upload, signed URL, and delete methods
+- [ ] Local MinIO container / bucket auto-initialization hook
+- [ ] Unit tests with mock storage client validating file streaming and signed URL generation
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_storage_service.py
+```"
+"CHALLENGE-TASK-07","challenge","challenge","HU-07","2","[CHALLENGE-TASK-07] Attachment Database Model & Storage Migrations","NelsonConde","task,sprint-2","Implement the ChallengeAttachment SQLAlchemy model representing technical support files, with size and MIME type constraints in db_challenges.","- Table: challenge_attachments in db_challenges
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * challenge_id: UUID (NOT NULL, FK challenges.id ON DELETE CASCADE, indexed)
+  * file_name: VARCHAR(255) (NOT NULL)
+  * file_size_bytes: BIGINT (NOT NULL, CHECK file_size_bytes <= 10485760 [10MB])
+  * mime_type: VARCHAR(100) (NOT NULL, CHECK mime_type IN ('application/pdf', 'image/png', 'image/jpeg', 'image/webp'))
+  * storage_path: VARCHAR(512) (NOT NULL)
+  * uploaded_by: UUID (NOT NULL)
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/attachment.py, alembic/versions/002_create_attachments_table.py","- [ ] Declarative ChallengeAttachment model with CASCADE delete on parent challenge
+- [ ] PostgreSQL CHECK constraints for <= 10MB and allowed MIME types
+- [ ] Alembic migration generated and applied cleanly
+- [ ] Model tests verifying cascade deletion and constraint violation handling","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement the ChallengeAttachment SQLAlchemy model representing technical support files, with size and MIME type constraints in db_challenges.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: challenge_attachments in db_challenges
+- Columns:
+  * id: UUID (Primary Key, default gen_random_uuid())
+  * challenge_id: UUID (NOT NULL, FK challenges.id ON DELETE CASCADE, indexed)
+  * file_name: VARCHAR(255) (NOT NULL)
+  * file_size_bytes: BIGINT (NOT NULL, CHECK file_size_bytes <= 10485760 [10MB])
+  * mime_type: VARCHAR(100) (NOT NULL, CHECK mime_type IN ('application/pdf', 'image/png', 'image/jpeg', 'image/webp'))
+  * storage_path: VARCHAR(512) (NOT NULL)
+  * uploaded_by: UUID (NOT NULL)
+  * created_at: TIMESTAMPTZ (NOT NULL, DEFAULT CURRENT_TIMESTAMP)
+- Target Files: src/models/attachment.py, alembic/versions/002_create_attachments_table.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Declarative ChallengeAttachment model with CASCADE delete on parent challenge
+- [ ] PostgreSQL CHECK constraints for <= 10MB and allowed MIME types
+- [ ] Alembic migration generated and applied cleanly
+- [ ] Model tests verifying cascade deletion and constraint violation handling
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"CHALLENGE-TASK-08","challenge","challenge","HU-07","2","[CHALLENGE-TASK-08] Attachment Upload & Signed Download Endpoints","juandiegosb","task,sprint-2","Expose multipart upload endpoint enforcing size limits (<=10MB) and MIME checks, alongside signed download and deletion routes.","- Endpoints:
+  * POST /api/v1/challenges/{id}/attachments: multipart file upload, size <= 10MB, MIME verification
+  * GET /api/v1/challenges/{id}/attachments: list attachments with active signed download URLs
+  * DELETE /api/v1/challenges/{id}/attachments/{attachment_id}: delete attachment and storage object
+- Business Rules: RB-06 company ownership check; RB-07 size limit <= 10MB (HTTP 413) and PDF/Images only (HTTP 415)
+- Target Files: src/routers/attachments.py, src/services/attachment_service.py, src/schemas/attachment.py","- [ ] POST attachment endpoint with chunked streaming size validation
+- [ ] MIME verification inspecting magic bytes and content types
+- [ ] Ephemeral signed URL generation for attachment downloads
+- [ ] Integration tests testing valid upload, 413 oversized rejection, and 415 format rejection","uv run pytest tests/test_attachment_upload.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Expose multipart upload endpoint enforcing size limits (<=10MB) and MIME checks, alongside signed download and deletion routes.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  * POST /api/v1/challenges/{id}/attachments: multipart file upload, size <= 10MB, MIME verification
+  * GET /api/v1/challenges/{id}/attachments: list attachments with active signed download URLs
+  * DELETE /api/v1/challenges/{id}/attachments/{attachment_id}: delete attachment and storage object
+- Business Rules: RB-06 company ownership check; RB-07 size limit <= 10MB (HTTP 413) and PDF/Images only (HTTP 415)
+- Target Files: src/routers/attachments.py, src/services/attachment_service.py, src/schemas/attachment.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] POST attachment endpoint with chunked streaming size validation
+- [ ] MIME verification inspecting magic bytes and content types
+- [ ] Ephemeral signed URL generation for attachment downloads
+- [ ] Integration tests testing valid upload, 413 oversized rejection, and 415 format rejection
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_attachment_upload.py
+```"
+"FRONTEND-TASK-03","frontend","frontend","HU-07","2","[FRONTEND-TASK-03] Drag-and-Drop Attachment Uploader Component with Size/MIME Validation","juandiegosb","task,sprint-2","Implement reusable attachment uploader component with client-side 10MB limit enforcement, format restrictions, and upload progress indicator.","- Component: app/components/challenges/AttachmentUploader.vue
+- Props: challengeId: string, readonly?: boolean
+- Client Validation: Reject files > 10MB with toast alert; permit only PDF (.pdf) and images (.png, .jpg, .jpeg, .webp)
+- Progress Handling: Chunked upload animation with upload progress bar
+- Target Files: app/components/challenges/AttachmentUploader.vue, app/composables/useChallenges.ts","- [ ] Drag-and-drop file upload component with file picker button
+- [ ] Client-side pre-validation for 10MB boundary and MIME types
+- [ ] Upload progress state and error display
+- [ ] Emits uploaded event with updated attachment metadata","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement reusable attachment uploader component with client-side 10MB limit enforcement, format restrictions, and upload progress indicator.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Component: app/components/challenges/AttachmentUploader.vue
+- Props: challengeId: string, readonly?: boolean
+- Client Validation: Reject files > 10MB with toast alert; permit only PDF (.pdf) and images (.png, .jpg, .jpeg, .webp)
+- Progress Handling: Chunked upload animation with upload progress bar
+- Target Files: app/components/challenges/AttachmentUploader.vue, app/composables/useChallenges.ts
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Drag-and-drop file upload component with file picker button
+- [ ] Client-side pre-validation for 10MB boundary and MIME types
+- [ ] Upload progress state and error display
+- [ ] Emits uploaded event with updated attachment metadata
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"FRONTEND-TASK-04","frontend","frontend","HU-07","2","[FRONTEND-TASK-04] Attachment Download & Ephemeral Link Preview Component","juandiegosb","task,sprint-2","Build the attachment list view component displaying file badges, human-readable file sizes, download triggers, and owner delete actions.","- Component: app/components/challenges/AttachmentList.vue
+- Props: attachments: Attachment[], canDelete: boolean
+- Features: File icon according to MIME type, human-readable size (e.g. 2.4 MB), direct download link opening signed URL in new tab, delete button with confirmation dialog
+- Target Files: app/components/challenges/AttachmentList.vue","- [ ] Attachment list cards with file icon, name, and size badges
+- [ ] Download button triggering secure signed URL access
+- [ ] Delete button with confirmation modal calling useChallenges().deleteAttachment
+- [ ] Reactive state updating immediately upon file removal","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Build the attachment list view component displaying file badges, human-readable file sizes, download triggers, and owner delete actions.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Component: app/components/challenges/AttachmentList.vue
+- Props: attachments: Attachment[], canDelete: boolean
+- Features: File icon according to MIME type, human-readable size (e.g. 2.4 MB), direct download link opening signed URL in new tab, delete button with confirmation dialog
+- Target Files: app/components/challenges/AttachmentList.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Attachment list cards with file icon, name, and size badges
+- [ ] Download button triggering secure signed URL access
+- [ ] Delete button with confirmation modal calling useChallenges().deleteAttachment
+- [ ] Reactive state updating immediately upon file removal
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"INFRA-TASK-02","infra","infra","HU-07","2","[INFRA-TASK-02] Cloud Storage Bucket & IAM Binding for Technical Attachments","AnorakTeam","task,sprint-2","Provision Google Cloud Storage bucket in Terraform for challenge attachments with CORS rules, lifecycle management, and service account access.","- Target File: infra/storage.tf
+- Resource: google_storage_bucket.challenge_attachments
+- Bucket Name: conecta-nexus-${var.environment}-challenge-attachments
+- Location: var.region (Standard storage class, uniform bucket-level access)
+- CORS: Allow origins (var.cors_allowed_origins), methods (GET, PUT, POST, HEAD), max age 3600
+- IAM: google_storage_bucket_iam_member granting roles/storage.objectAdmin to challenge Cloud Run service account","- [ ] Create infra/storage.tf with google_storage_bucket resource
+- [ ] Configure CORS block for frontend signed URL uploads/downloads
+- [ ] Attach IAM policy binding for challenge service account
+- [ ] Output bucket name in infra/outputs.tf","cd infra && terraform validate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `infra`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Provision Google Cloud Storage bucket in Terraform for challenge attachments with CORS rules, lifecycle management, and service account access.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target File: infra/storage.tf
+- Resource: google_storage_bucket.challenge_attachments
+- Bucket Name: conecta-nexus-${var.environment}-challenge-attachments
+- Location: var.region (Standard storage class, uniform bucket-level access)
+- CORS: Allow origins (var.cors_allowed_origins), methods (GET, PUT, POST, HEAD), max age 3600
+- IAM: google_storage_bucket_iam_member granting roles/storage.objectAdmin to challenge Cloud Run service account
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Create infra/storage.tf with google_storage_bucket resource
+- [ ] Configure CORS block for frontend signed URL uploads/downloads
+- [ ] Attach IAM policy binding for challenge service account
+- [ ] Output bucket name in infra/outputs.tf
+
+---
+
+### 5. Verification Command
+```bash
+cd infra && terraform validate
+```"
+"INFRA-TASK-03","infra","infra","HU-07","2","[INFRA-TASK-03] MinIO Object Storage Setup for Local Containerized Environment","NelsonConde","task,sprint-2","Configure MinIO S3-compatible object storage container and auto-bucket creation in compose.yaml for local development of challenge attachments.","- Target Files: compose.yaml, challenge/.env.example
+- Service minio: image minio/minio:latest, ports 9000:9000 and 9001:9001 (console), volume minio_data:/data
+- Service minio-init: minio/mc container waiting for minio, creating bucket challenge-attachments, setting access policy
+- Dependencies: challenge service depends_on minio (healthy)","- [ ] Add minio and minio-init services to compose.yaml
+- [ ] Configure STORAGE_ENDPOINT and STORAGE_BUCKET in challenge/.env.example
+- [ ] Verify podman/docker compose config syntax
+- [ ] Test bucket creation on container startup","podman compose config || docker compose config","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `infra`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Configure MinIO S3-compatible object storage container and auto-bucket creation in compose.yaml for local development of challenge attachments.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target Files: compose.yaml, challenge/.env.example
+- Service minio: image minio/minio:latest, ports 9000:9000 and 9001:9001 (console), volume minio_data:/data
+- Service minio-init: minio/mc container waiting for minio, creating bucket challenge-attachments, setting access policy
+- Dependencies: challenge service depends_on minio (healthy)
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Add minio and minio-init services to compose.yaml
+- [ ] Configure STORAGE_ENDPOINT and STORAGE_BUCKET in challenge/.env.example
+- [ ] Verify podman/docker compose config syntax
+- [ ] Test bucket creation on container startup
+
+---
+
+### 5. Verification Command
+```bash
+podman compose config || docker compose config
+```"
+"GATEWAY-TASK-01","gateway","gateway","HU-07","2","[GATEWAY-TASK-01] Large Attachment Streaming & Proxy Buffering Optimization","NelsonConde","task,sprint-2","Optimize Nginx gateway configurations for multipart file uploads up to 10MB, disabling request buffering to stream directly to the challenge service.","- Target Files: gateway/conf.d/default.conf, gateway/templates/default.conf.template
+- Route: location ~ ^/api/v1/challenge(s)?(/.*)?$
+- Directives:
+  * client_max_body_size 25M;
+  * proxy_request_buffering off; (real-time stream upload without disk buffering)
+  * proxy_read_timeout 120s;
+  * proxy_send_timeout 120s;
+  * Access-Control-Expose-Headers: Content-Disposition, Content-Length, ETag","- [ ] Update default.conf and default.conf.template with streaming proxy directives
+- [ ] Configure extended timeout limits for 10MB attachment uploads
+- [ ] Ensure Content-Disposition is exposed in CORS headers
+- [ ] Validate Nginx configuration syntax","docker run --rm -v $(pwd)/gateway/conf.d:/etc/nginx/conf.d:ro nginx:alpine nginx -t 2>/dev/null || true","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `gateway`
+- **Parent User Story:** HU-07 (Closes part of conecta-nexus/challenge#2)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Optimize Nginx gateway configurations for multipart file uploads up to 10MB, disabling request buffering to stream directly to the challenge service.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target Files: gateway/conf.d/default.conf, gateway/templates/default.conf.template
+- Route: location ~ ^/api/v1/challenge(s)?(/.*)?$
+- Directives:
+  * client_max_body_size 25M;
+  * proxy_request_buffering off; (real-time stream upload without disk buffering)
+  * proxy_read_timeout 120s;
+  * proxy_send_timeout 120s;
+  * Access-Control-Expose-Headers: Content-Disposition, Content-Length, ETag
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Update default.conf and default.conf.template with streaming proxy directives
+- [ ] Configure extended timeout limits for 10MB attachment uploads
+- [ ] Ensure Content-Disposition is exposed in CORS headers
+- [ ] Validate Nginx configuration syntax
+
+---
+
+### 5. Verification Command
+```bash
+docker run --rm -v $(pwd)/gateway/conf.d:/etc/nginx/conf.d:ro nginx:alpine nginx -t 2>/dev/null || true
+```"
+"CHALLENGE-TASK-09","challenge","challenge","HU-08","3","[CHALLENGE-TASK-09] Challenge Lifecycle State Machine & Justification Model","juandiegosb","task,sprint-2","Implement challenge status transition rules and the ChallengeClosureLog database model to audit voluntary closures with mandatory justifications.","- Table: challenge_closure_logs in db_challenges (id, challenge_id, closed_by, previous_status, target_status, closure_reason, created_at)
+- State Machine: DRAFT -> OPEN (publish); OPEN -> CLOSED or CANCELLED (requires justification >= 15 chars); illegal transitions blocked
+- Target Files: src/models/closure.py, src/services/lifecycle_service.py, alembic/versions/003_create_closure_logs_table.py","- [ ] ChallengeClosureLog SQLAlchemy model and Alembic migration
+- [ ] State machine transition validator in LifecycleService
+- [ ] Unit tests verifying valid and illegal state transitions","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-08 (Closes part of conecta-nexus/challenge#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement challenge status transition rules and the ChallengeClosureLog database model to audit voluntary closures with mandatory justifications.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Table: challenge_closure_logs in db_challenges (id, challenge_id, closed_by, previous_status, target_status, closure_reason, created_at)
+- State Machine: DRAFT -> OPEN (publish); OPEN -> CLOSED or CANCELLED (requires justification >= 15 chars); illegal transitions blocked
+- Target Files: src/models/closure.py, src/services/lifecycle_service.py, alembic/versions/003_create_closure_logs_table.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] ChallengeClosureLog SQLAlchemy model and Alembic migration
+- [ ] State machine transition validator in LifecycleService
+- [ ] Unit tests verifying valid and illegal state transitions
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"CHALLENGE-TASK-10","challenge","challenge","HU-08","3","[CHALLENGE-TASK-10] Voluntary Closure & Company Dashboard Endpoints","AnorakTeam","task,sprint-2","Expose endpoints for voluntary challenge closure requiring mandatory reason, and private company challenge portfolio query.","- Endpoints:
+  * POST /api/v1/challenges/{id}/close: requires closure_reason (>= 15 chars), sets status to CLOSED
+  * POST /api/v1/challenges/{id}/publish: transitions DRAFT to OPEN
+  * GET /api/v1/challenges/company/me: paginated list of company's challenges with status filters and summary metrics
+- Target Files: src/routers/challenges.py, src/services/challenge_service.py, src/schemas/closure.py","- [ ] Closure endpoint verifying mandatory justification (>= 15 chars)
+- [ ] Publish endpoint transitioning DRAFT to OPEN
+- [ ] Company portfolio endpoint returning all owned challenges and status counts
+- [ ] Integration tests verifying closure audit and company data isolation","uv run pytest tests/test_challenge_closure.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-08 (Closes part of conecta-nexus/challenge#3)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Expose endpoints for voluntary challenge closure requiring mandatory reason, and private company challenge portfolio query.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  * POST /api/v1/challenges/{id}/close: requires closure_reason (>= 15 chars), sets status to CLOSED
+  * POST /api/v1/challenges/{id}/publish: transitions DRAFT to OPEN
+  * GET /api/v1/challenges/company/me: paginated list of company's challenges with status filters and summary metrics
+- Target Files: src/routers/challenges.py, src/services/challenge_service.py, src/schemas/closure.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Closure endpoint verifying mandatory justification (>= 15 chars)
+- [ ] Publish endpoint transitioning DRAFT to OPEN
+- [ ] Company portfolio endpoint returning all owned challenges and status counts
+- [ ] Integration tests verifying closure audit and company data isolation
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_challenge_closure.py
+```"
+"FRONTEND-TASK-05","frontend","frontend","HU-08","3","[FRONTEND-TASK-05] Company Challenge Management Dashboard Page (/challenges/manage)","juandiegosb","task,sprint-2","Build the company challenges portfolio dashboard with status tabs, metrics counters, quick action buttons, and publication toggles.","- Route: app/pages/challenges/manage.vue
+- Role Guard: Restrict to COMPANY role
+- Dashboard Features: Summary metric cards (Draft, Open, In Progress, Closed); status filter tabs; challenges table with dates, applications count, and status badges; action dropdowns ('Edit', 'Publish', 'Manage Files', 'Close')
+- Target Files: app/pages/challenges/manage.vue, app/components/challenges/CompanyChallengeTable.vue","- [ ] Nuxt management page with data fetching via useChallenges().fetchCompanyChallenges()
+- [ ] Metrics overview cards displaying state counts
+- [ ] Interactive table with action handlers and status badges
+- [ ] Toast alerts confirming status changes","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-08 (Closes part of conecta-nexus/challenge#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Build the company challenges portfolio dashboard with status tabs, metrics counters, quick action buttons, and publication toggles.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Route: app/pages/challenges/manage.vue
+- Role Guard: Restrict to COMPANY role
+- Dashboard Features: Summary metric cards (Draft, Open, In Progress, Closed); status filter tabs; challenges table with dates, applications count, and status badges; action dropdowns ('Edit', 'Publish', 'Manage Files', 'Close')
+- Target Files: app/pages/challenges/manage.vue, app/components/challenges/CompanyChallengeTable.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Nuxt management page with data fetching via useChallenges().fetchCompanyChallenges()
+- [ ] Metrics overview cards displaying state counts
+- [ ] Interactive table with action handlers and status badges
+- [ ] Toast alerts confirming status changes
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"FRONTEND-TASK-06","frontend","frontend","HU-08","3","[FRONTEND-TASK-06] Voluntary Closure Modal with Mandatory Justification Validation","juandiegosb","task,sprint-2","Implement the modal dialog for voluntary challenge closure, enforcing client-side validation of mandatory justification (>=15 chars).","- Component: app/components/challenges/ChallengeClosureModal.vue
+- Props: challenge: Challenge | null, isOpen: boolean
+- Validation: Textarea with live character counter; 'Confirm Closure' button disabled if reason length < 15 chars
+- Action: Calls useChallenges().closeChallenge(id, { closure_reason, status: 'CLOSED' })
+- Target Files: app/components/challenges/ChallengeClosureModal.vue","- [ ] Modal component with UModal, UTextarea, and live character counter
+- [ ] Validation preventing submission without meaningful justification
+- [ ] Async mutation call updating challenge state
+- [ ] Emits closed event to refresh parent table","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-08 (Closes part of conecta-nexus/challenge#3)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement the modal dialog for voluntary challenge closure, enforcing client-side validation of mandatory justification (>=15 chars).
+
+---
+
+### 3. Technical Specifications & Constraints
+- Component: app/components/challenges/ChallengeClosureModal.vue
+- Props: challenge: Challenge | null, isOpen: boolean
+- Validation: Textarea with live character counter; 'Confirm Closure' button disabled if reason length < 15 chars
+- Action: Calls useChallenges().closeChallenge(id, { closure_reason, status: 'CLOSED' })
+- Target Files: app/components/challenges/ChallengeClosureModal.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Modal component with UModal, UTextarea, and live character counter
+- [ ] Validation preventing submission without meaningful justification
+- [ ] Async mutation call updating challenge state
+- [ ] Emits closed event to refresh parent table
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"CHALLENGE-TASK-11","challenge","challenge","HU-09","4","[CHALLENGE-TASK-11] Public Catalog Query Service & Data Masking Serializers","juandiegosb","task,sprint-2","Implement the public catalog projection service and Pydantic serializers, enforcing privacy data masking by hiding direct company contact details.","- Rule RB-05 / RF08 / RF19: Hide direct email/phone from catalog and public detail responses
+- Serializers: ChallengeCatalogItemResponse, ChallengeCatalogDetailResponse
+- Target Files: src/schemas/catalog.py, src/services/catalog_service.py","- [ ] Public catalog Pydantic schemas omitting all private contact fields
+- [ ] Description snippet truncation helper for discovery cards
+- [ ] Unit tests verifying direct email/phone are never serialized in public responses","uv run pytest tests/test_catalog_schemas.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-09 (Closes part of conecta-nexus/challenge#4)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement the public catalog projection service and Pydantic serializers, enforcing privacy data masking by hiding direct company contact details.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Rule RB-05 / RF08 / RF19: Hide direct email/phone from catalog and public detail responses
+- Serializers: ChallengeCatalogItemResponse, ChallengeCatalogDetailResponse
+- Target Files: src/schemas/catalog.py, src/services/catalog_service.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Public catalog Pydantic schemas omitting all private contact fields
+- [ ] Description snippet truncation helper for discovery cards
+- [ ] Unit tests verifying direct email/phone are never serialized in public responses
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_catalog_schemas.py
+```"
+"CHALLENGE-TASK-12","challenge","challenge","HU-09","4","[CHALLENGE-TASK-12] Public Catalog Exploration & Detail View Endpoints","juandiegosb","task,sprint-2","Expose public catalog exploration endpoint with pagination metadata, and public challenge detail route for eligible students.","- Endpoints:
+  * GET /api/v1/challenges/catalog: paginated open challenges (status == 'OPEN')
+  * GET /api/v1/challenges/catalog/{id}: full problem requirements and read-only attachments
+- Target Files: src/routers/catalog.py, src/repositories/catalog_repository.py","- [ ] GET /api/v1/challenges/catalog endpoint with pagination metadata
+- [ ] GET /api/v1/challenges/catalog/{id} detail route with read-only attachment URLs
+- [ ] Unit tests verifying that only OPEN challenges are returned and draft/closed challenges return 404","uv run pytest tests/test_catalog_endpoint.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-09 (Closes part of conecta-nexus/challenge#4)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Expose public catalog exploration endpoint with pagination metadata, and public challenge detail route for eligible students.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoints:
+  * GET /api/v1/challenges/catalog: paginated open challenges (status == 'OPEN')
+  * GET /api/v1/challenges/catalog/{id}: full problem requirements and read-only attachments
+- Target Files: src/routers/catalog.py, src/repositories/catalog_repository.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] GET /api/v1/challenges/catalog endpoint with pagination metadata
+- [ ] GET /api/v1/challenges/catalog/{id} detail route with read-only attachment URLs
+- [ ] Unit tests verifying that only OPEN challenges are returned and draft/closed challenges return 404
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_catalog_endpoint.py
+```"
+"FRONTEND-TASK-07","frontend","frontend","HU-09","4","[FRONTEND-TASK-07] Opportunity Catalog Grid & Discovery Cards (/challenges)","NelsonConde","task,sprint-2","Build the main opportunity catalog exploration page with responsive card grid, pagination controls, and discovery summary cards.","- Route: app/pages/challenges/index.vue
+- Card Component: app/components/challenges/ChallengeCard.vue (title, truncated description, company name, sector, difficulty badge, modality, semester tag, skills pills)
+- Pagination: UPagination controls synchronized with page/size query params
+- Target Files: app/pages/challenges/index.vue, app/components/challenges/ChallengeCard.vue","- [ ] Main catalog page fetching open opportunities via useChallenges().fetchCatalog()
+- [ ] Responsive grid card component conforming to design guidelines
+- [ ] Pagination component with page and size controls
+- [ ] Privacy check verifying direct company email/phone are never rendered","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-09 (Closes part of conecta-nexus/challenge#4)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Build the main opportunity catalog exploration page with responsive card grid, pagination controls, and discovery summary cards.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Route: app/pages/challenges/index.vue
+- Card Component: app/components/challenges/ChallengeCard.vue (title, truncated description, company name, sector, difficulty badge, modality, semester tag, skills pills)
+- Pagination: UPagination controls synchronized with page/size query params
+- Target Files: app/pages/challenges/index.vue, app/components/challenges/ChallengeCard.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Main catalog page fetching open opportunities via useChallenges().fetchCatalog()
+- [ ] Responsive grid card component conforming to design guidelines
+- [ ] Pagination component with page and size controls
+- [ ] Privacy check verifying direct company email/phone are never rendered
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"FRONTEND-TASK-08","frontend","frontend","HU-09","4","[FRONTEND-TASK-08] Public Challenge Detail Page with Masked Contacts (/challenges/[id])","juandiegosb","task,sprint-2","Implement public challenge detail page presenting full technical problem, requirements, downloadable support files, and application CTA.","- Route: app/pages/challenges/[id].vue
+- Detail Layout: company name, sector, date, modality, difficulty; formatted problem statement & business process; required skills chips; technical attachments with AttachmentList.vue; Apply to Challenge CTA button
+- Privacy Masking: strictly masks corporate contact channels (RB-05)
+- Target Files: app/pages/challenges/[id].vue","- [ ] Dynamic route page with async data loading and 404 fallback
+- [ ] Full specification layout with structured technical sections
+- [ ] Attachment download integration
+- [ ] Student role verification on 'Apply' action button","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-09 (Closes part of conecta-nexus/challenge#4)
+- **Assigned Developer:** @juandiegosb
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement public challenge detail page presenting full technical problem, requirements, downloadable support files, and application CTA.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Route: app/pages/challenges/[id].vue
+- Detail Layout: company name, sector, date, modality, difficulty; formatted problem statement & business process; required skills chips; technical attachments with AttachmentList.vue; Apply to Challenge CTA button
+- Privacy Masking: strictly masks corporate contact channels (RB-05)
+- Target Files: app/pages/challenges/[id].vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Dynamic route page with async data loading and 404 fallback
+- [ ] Full specification layout with structured technical sections
+- [ ] Attachment download integration
+- [ ] Student role verification on 'Apply' action button
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"GATEWAY-TASK-02","gateway","gateway","HU-09","4","[GATEWAY-TASK-02] Catalog Micro-Caching & Public Route Rate Limiting","AnorakTeam","task,sprint-2","Configure rate limiting and short-lived proxy caching for public catalog exploration endpoints to safeguard downstream services against high traffic.","- Target Files: gateway/conf.d/default.conf, gateway/templates/default.conf.template
+- Rate Limiting Zone: limit_req_zone $binary_remote_addr zone=catalog_limit:10m rate=30r/s;
+- Proxy Caching: proxy_cache_valid 200 15s; for anonymous GET /api/v1/challenges/catalog
+- Cache Bypass: proxy_cache_bypass $http_authorization","- [ ] Define catalog rate limiting zone in Nginx configuration
+- [ ] Implement 15-second micro-cache for public anonymous catalog queries
+- [ ] Configure cache bypass for authenticated user requests
+- [ ] Test gateway routing with caching headers","docker run --rm -v $(pwd)/gateway/conf.d:/etc/nginx/conf.d:ro nginx:alpine nginx -t 2>/dev/null || true","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `gateway`
+- **Parent User Story:** HU-09 (Closes part of conecta-nexus/challenge#4)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Configure rate limiting and short-lived proxy caching for public catalog exploration endpoints to safeguard downstream services against high traffic.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target Files: gateway/conf.d/default.conf, gateway/templates/default.conf.template
+- Rate Limiting Zone: limit_req_zone $binary_remote_addr zone=catalog_limit:10m rate=30r/s;
+- Proxy Caching: proxy_cache_valid 200 15s; for anonymous GET /api/v1/challenges/catalog
+- Cache Bypass: proxy_cache_bypass $http_authorization
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Define catalog rate limiting zone in Nginx configuration
+- [ ] Implement 15-second micro-cache for public anonymous catalog queries
+- [ ] Configure cache bypass for authenticated user requests
+- [ ] Test gateway routing with caching headers
+
+---
+
+### 5. Verification Command
+```bash
+docker run --rm -v $(pwd)/gateway/conf.d:/etc/nginx/conf.d:ro nginx:alpine nginx -t 2>/dev/null || true
+```"
+"CHALLENGE-TASK-13","challenge","challenge","HU-10","5","[CHALLENGE-TASK-13] GIN Indexes & Multi-Criteria SQL Query Repository","AnorakTeam","task,sprint-2","Implement PostgreSQL GIN indexes for JSONB arrays and the dynamic multi-attribute query builder for reactive challenge filtering.","- Indexes in db_challenges: GIN on required_skills and knowledge_areas, B-Tree on status, created_at and sector, modality, difficulty
+- Repository Query Builder: filter by knowledge areas, skills, sector, modality, difficulty, min_semester, keyword search
+- Target Files: src/repositories/catalog_repository.py, alembic/versions/004_create_catalog_indexes.py","- [ ] Alembic migration creating GIN and B-Tree indexes
+- [ ] Dynamic SQLAlchemy async query builder in CatalogRepository
+- [ ] Unit tests verifying SQL query generation and index execution plans","uv run alembic upgrade head","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-10 (Closes part of conecta-nexus/challenge#5)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement PostgreSQL GIN indexes for JSONB arrays and the dynamic multi-attribute query builder for reactive challenge filtering.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Indexes in db_challenges: GIN on required_skills and knowledge_areas, B-Tree on status, created_at and sector, modality, difficulty
+- Repository Query Builder: filter by knowledge areas, skills, sector, modality, difficulty, min_semester, keyword search
+- Target Files: src/repositories/catalog_repository.py, alembic/versions/004_create_catalog_indexes.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Alembic migration creating GIN and B-Tree indexes
+- [ ] Dynamic SQLAlchemy async query builder in CatalogRepository
+- [ ] Unit tests verifying SQL query generation and index execution plans
+
+---
+
+### 5. Verification Command
+```bash
+uv run alembic upgrade head
+```"
+"CHALLENGE-TASK-14","challenge","challenge","HU-10","5","[CHALLENGE-TASK-14] Reactive Filtering Endpoint & Empty-State Metadata","AnorakTeam","task,sprint-2","Add multi-criteria query parameters to the catalog endpoint and return structured metadata with explicit empty-state messaging when zero matches occur.","- Endpoint: GET /api/v1/challenges/catalog with query params (knowledge_area, skill, sector, modality, difficulty, max_semester, q)
+- Empty State Metadata: returns structured metadata with active_filters and code NO_MATCHING_CHALLENGES
+- Target Files: src/routers/catalog.py, src/schemas/catalog.py","- [ ] Query parameter parsing and validation in catalog router
+- [ ] Empty-state metadata serializer
+- [ ] Integration tests testing multi-filter combinations and empty-state response structure","uv run pytest tests/test_catalog_filtering.py","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `challenge`
+- **Parent User Story:** HU-10 (Closes part of conecta-nexus/challenge#5)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Add multi-criteria query parameters to the catalog endpoint and return structured metadata with explicit empty-state messaging when zero matches occur.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Endpoint: GET /api/v1/challenges/catalog with query params (knowledge_area, skill, sector, modality, difficulty, max_semester, q)
+- Empty State Metadata: returns structured metadata with active_filters and code NO_MATCHING_CHALLENGES
+- Target Files: src/routers/catalog.py, src/schemas/catalog.py
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Query parameter parsing and validation in catalog router
+- [ ] Empty-state metadata serializer
+- [ ] Integration tests testing multi-filter combinations and empty-state response structure
+
+---
+
+### 5. Verification Command
+```bash
+uv run pytest tests/test_catalog_filtering.py
+```"
+"FRONTEND-TASK-09","frontend","frontend","HU-10","5","[FRONTEND-TASK-09] Reactive Filter Bar Component & URL Query Sync","AnorakTeam","task,sprint-2","Build the reactive multi-criteria filter component with debounced search, dropdown selectors, and bidirectional URL query synchronization.","- Component: app/components/challenges/CatalogFilterBar.vue
+- Filter Controls: keyword search with 300ms debounce, knowledge area multi-select, skills tag chips, economic sector select, modality toggle, difficulty selector
+- Synchronization: updates Nuxt router query parameters without page reload
+- Target Files: app/components/challenges/CatalogFilterBar.vue, app/pages/challenges/index.vue","- [ ] Responsive filter bar component with expandable mobile drawer
+- [ ] Debounced text search and multi-select filters
+- [ ] Nuxt router query synchronization logic
+- [ ] Active filter count badge and individual filter chip dismissals","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-10 (Closes part of conecta-nexus/challenge#5)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Build the reactive multi-criteria filter component with debounced search, dropdown selectors, and bidirectional URL query synchronization.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Component: app/components/challenges/CatalogFilterBar.vue
+- Filter Controls: keyword search with 300ms debounce, knowledge area multi-select, skills tag chips, economic sector select, modality toggle, difficulty selector
+- Synchronization: updates Nuxt router query parameters without page reload
+- Target Files: app/components/challenges/CatalogFilterBar.vue, app/pages/challenges/index.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Responsive filter bar component with expandable mobile drawer
+- [ ] Debounced text search and multi-select filters
+- [ ] Nuxt router query synchronization logic
+- [ ] Active filter count badge and individual filter chip dismissals
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"FRONTEND-TASK-10","frontend","frontend","HU-10","5","[FRONTEND-TASK-10] Filter Empty-State View & Reset Action Component","NelsonConde","task,sprint-2","Implement dedicated empty-state feedback card when no challenges match applied filters, providing one-click filter reset actions.","- Component: app/components/challenges/CatalogEmptyState.vue
+- Elements: Empty state illustration, informative message ('No matching challenges found'), list of active filters causing zero results, primary action button 'Reset All Filters'
+- Target Files: app/components/challenges/CatalogEmptyState.vue, app/pages/challenges/index.vue","- [ ] Empty-state UI component integrated into catalog page
+- [ ] One-click filter reset handler
+- [ ] Unit/component tests verifying render condition when items.length === 0","cd frontend && pnpm lint","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `frontend`
+- **Parent User Story:** HU-10 (Closes part of conecta-nexus/challenge#5)
+- **Assigned Developer:** @NelsonConde
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Implement dedicated empty-state feedback card when no challenges match applied filters, providing one-click filter reset actions.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Component: app/components/challenges/CatalogEmptyState.vue
+- Elements: Empty state illustration, informative message ('No matching challenges found'), list of active filters causing zero results, primary action button 'Reset All Filters'
+- Target Files: app/components/challenges/CatalogEmptyState.vue, app/pages/challenges/index.vue
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Empty-state UI component integrated into catalog page
+- [ ] One-click filter reset handler
+- [ ] Unit/component tests verifying render condition when items.length === 0
+
+---
+
+### 5. Verification Command
+```bash
+cd frontend && pnpm lint
+```"
+"INFRA-TASK-04","infra","infra","HU-10","5","[INFRA-TASK-04] Cloud SQL Database & Performance Optimization for db_challenges","AnorakTeam","task,sprint-2","Verify and apply Cloud SQL flags, connection pooling limits, and resource allocations for db_challenges on PostgreSQL 16.","- Target Files: infra/cloud_sql.tf
+- Database: db_challenges on Cloud SQL instance google_sql_database_instance.postgres
+- Database Flags: max_connections = 100, shared_buffers = '128MB', work_mem = '16MB'
+- IAM User: grant permissions to Cloud Run challenge service account","- [ ] Add database resource db_challenges to infra/cloud_sql.tf
+- [ ] Configure memory and connection optimization flags for JSONB indexing
+- [ ] Verify service account database access credentials
+- [ ] Terraform validation passes cleanly","cd infra && terraform validate","### 1. Task Metadata & Traceability
+- **Module / Microservice:** `infra`
+- **Parent User Story:** HU-10 (Closes part of conecta-nexus/challenge#5)
+- **Assigned Developer:** @AnorakTeam
+- **Sprint:** Sprint 2 (23 Oct – 11 Nov 2026)
+- **Labels:** `task`, `sprint-2`
+
+---
+
+### 2. Objective & Description
+Verify and apply Cloud SQL flags, connection pooling limits, and resource allocations for db_challenges on PostgreSQL 16.
+
+---
+
+### 3. Technical Specifications & Constraints
+- Target Files: infra/cloud_sql.tf
+- Database: db_challenges on Cloud SQL instance google_sql_database_instance.postgres
+- Database Flags: max_connections = 100, shared_buffers = '128MB', work_mem = '16MB'
+- IAM User: grant permissions to Cloud Run challenge service account
+
+---
+
+### 4. Acceptance Criteria & Deliverables
+- [ ] Add database resource db_challenges to infra/cloud_sql.tf
+- [ ] Configure memory and connection optimization flags for JSONB indexing
+- [ ] Verify service account database access credentials
+- [ ] Terraform validation passes cleanly
+
+---
+
+### 5. Verification Command
+```bash
+cd infra && terraform validate
+```"
