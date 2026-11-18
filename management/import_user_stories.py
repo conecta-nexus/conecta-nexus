@@ -220,7 +220,7 @@ USER_STORIES = [
         "sprint": "Sprint 2",
         "points": 5,
         "priority": "Should Have",
-        "assignees": "anorak,nelson",
+        "assignees": "juan,nelson",
         "acceptance_criteria": (
             "#### Scenario 1: Valid File Upload\n"
             "- **Given** an open challenge owned by the company\n"
@@ -254,7 +254,7 @@ USER_STORIES = [
         "sprint": "Sprint 2",
         "points": 5,
         "priority": "Should Have",
-        "assignees": "anorak,nelson",
+        "assignees": "juan,anorak",
         "acceptance_criteria": (
             "#### Scenario 1: Voluntary Closure with Reason\n"
             "- **Given** an open challenge owned by the company\n"
@@ -284,7 +284,7 @@ USER_STORIES = [
         "sprint": "Sprint 2",
         "points": 8,
         "priority": "Must Have",
-        "assignees": "anorak,nelson",
+        "assignees": "juan,nelson",
         "acceptance_criteria": (
             "#### Scenario 1: Catalog Listing\n"
             "- **Given** an authenticated student viewing the catalog\n"
@@ -314,7 +314,7 @@ USER_STORIES = [
         "sprint": "Sprint 2",
         "points": 7,
         "priority": "Should Have",
-        "assignees": "anorak,nelson",
+        "assignees": "anorak,juan",
         "acceptance_criteria": (
             "#### Scenario 1: Filter Matches\n"
             "- **Given** an active catalog with multiple challenges\n"

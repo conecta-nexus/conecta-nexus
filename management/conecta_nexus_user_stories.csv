@@ -14,14 +14,14 @@
 As a new user (Student or Company), I want to register with my institutional/corporate email and secure credentials, so that I have personalized access according to my role.
 
 ### Traceability
-- **Service/Repo:** `auth`
+- **Service / Repo:** `auth`
 - **Requirements:** RF01, RF03
 - **Business Rules:** RB-01 (Role segregation and secure password policy)
 - **Use Case:** CU-01
 - **Sprint:** Sprint 1
 - **Story Points:** 5
 - **Priority:** Must Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @anorak @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Successful Registration
@@ -59,14 +59,14 @@ As a new user (Student or Company), I want to register with my institutional/cor
 As a registered user, I want to securely log in and obtain JWT access and refresh tokens, so that my authenticated session is protected and verified across microservices.
 
 ### Traceability
-- **Service/Repo:** `auth`
+- **Service / Repo:** `auth`
 - **Requirements:** RF02, RF05
 - **Business Rules:** RB-01 (Secure session revocation and stateless token validation)
 - **Use Case:** CU-01
 - **Sprint:** Sprint 1
 - **Story Points:** 5
 - **Priority:** Must Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @anorak @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Successful Login
@@ -104,14 +104,14 @@ As a registered user, I want to securely log in and obtain JWT access and refres
 As a platform user, I must provide explicit and traceable consent for personal data processing under Colombian Law 1581 of 2012, so that my account complies with data protection regulations.
 
 ### Traceability
-- **Service/Repo:** `profile`
+- **Service / Repo:** `profile`
 - **Requirements:** RF09
 - **Business Rules:** RB-05 (Traceable data consent prior to profile activation)
 - **Use Case:** CU-02, CU-03
 - **Sprint:** Sprint 1
 - **Story Points:** 5
 - **Priority:** Must Have
-- **Code Owners:** @anorak @juan
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Explicit Consent Accepted
@@ -149,14 +149,14 @@ As a platform user, I must provide explicit and traceable consent for personal d
 As a student, I want to manage my academic profile (skills, active semester between 6th and 10th, and areas of interest) with immutable career code, so that companies can review my profile.
 
 ### Traceability
-- **Service/Repo:** `profile`
+- **Service / Repo:** `profile`
 - **Requirements:** RF06, RF08, RF10
 - **Business Rules:** RB-02 (Semester 6-10 constraint) & RB-08 (Immutable career and student code)
 - **Use Case:** CU-02
 - **Sprint:** Sprint 1
 - **Story Points:** 8
 - **Priority:** Should Have
-- **Code Owners:** @anorak @juan
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Valid Student Profile Update
@@ -194,14 +194,14 @@ As a student, I want to manage my academic profile (skills, active semester betw
 As a company representative, I want to configure my corporate profile with business name, Tax ID (NIT), sector, and website, so that students can verify institutional credibility.
 
 ### Traceability
-- **Service/Repo:** `profile`
+- **Service / Repo:** `profile`
 - **Requirements:** RF07, RF08
 - **Business Rules:** RB-05 (Restricted corporate view without private contacts until match)
 - **Use Case:** CU-03
 - **Sprint:** Sprint 1
 - **Story Points:** 10
 - **Priority:** Should Have
-- **Code Owners:** @anorak @juan
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Corporate Profile Registration
@@ -234,14 +234,14 @@ As a company representative, I want to configure my corporate profile with busin
 As a verified company, I want to publish real operational challenges detailing problem description, affected business process, and required skills, so that interested students can discover them.
 
 ### Traceability
-- **Service/Repo:** `challenge`
+- **Service / Repo:** `challenge`
 - **Requirements:** RF11, RF14, RF15, RF16
 - **Business Rules:** RB-06 (Strict ownership: companies can only edit own challenges in Draft or Open)
 - **Use Case:** CU-04
 - **Sprint:** Sprint 2
 - **Story Points:** 8
 - **Priority:** Must Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @anorak @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Successful Challenge Publication
@@ -259,7 +259,7 @@ As a verified company, I want to publish real operational challenges detailing p
 - [ ] Implement FastAPI route `/api/v1/challenges/` with Pydantic validation
 - [ ] Enforce ownership checks on update/delete
 - [ ] Unit tests for challenge creation, state changes, and permission boundary"
-"HU-07","challenge","challenge","[CHALLENGE] HU-07: Secure Technical Attachment Management","As a company, I want to attach PDF or image support documents (up to 10MB) to my challenge, so that students have accurate technical context.","RF12, RF18","RB-07 (Secure storage, authorized access, size <=10MB, PDF/Image only)","CU-04","Sprint 2","5","Should Have","anorak,nelson","#### Scenario 1: Valid File Upload
+"HU-07","challenge","challenge","[CHALLENGE] HU-07: Secure Technical Attachment Management","As a company, I want to attach PDF or image support documents (up to 10MB) to my challenge, so that students have accurate technical context.","RF12, RF18","RB-07 (Secure storage, authorized access, size <=10MB, PDF/Image only)","CU-04","Sprint 2","5","Should Have","juan,nelson","#### Scenario 1: Valid File Upload
 - **Given** an open challenge owned by the company
 - **When** a valid PDF file under 10MB is uploaded
 - **Then** the file is streamed to Object Storage (MinIO/GCS) and linked via secure URI.
@@ -279,14 +279,14 @@ As a verified company, I want to publish real operational challenges detailing p
 As a company, I want to attach PDF or image support documents (up to 10MB) to my challenge, so that students have accurate technical context.
 
 ### Traceability
-- **Service/Repo:** `challenge`
+- **Service / Repo:** `challenge`
 - **Requirements:** RF12, RF18
 - **Business Rules:** RB-07 (Secure storage, authorized access, size <=10MB, PDF/Image only)
 - **Use Case:** CU-04
 - **Sprint:** Sprint 2
 - **Story Points:** 5
 - **Priority:** Should Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @juan @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Valid File Upload
@@ -309,7 +309,7 @@ As a company, I want to attach PDF or image support documents (up to 10MB) to my
 - [ ] Implement file size (<10MB) and MIME type validator
 - [ ] Create upload endpoint `/api/v1/challenges/{id}/attachments`
 - [ ] Unit tests for upload validation, signed URL generation, and size boundary"
-"HU-08","challenge","challenge","[CHALLENGE] HU-08: Own Challenge Administration and Voluntary Closure","As a company, I want to edit, close, or cancel my open challenges with mandatory justification, so that my organization's portfolio remains accurate.","RF13, RF14, RF15, RF17","RB-06 (Mandatory closure justification)","CU-04","Sprint 2","5","Should Have","anorak,nelson","#### Scenario 1: Voluntary Closure with Reason
+"HU-08","challenge","challenge","[CHALLENGE] HU-08: Own Challenge Administration and Voluntary Closure","As a company, I want to edit, close, or cancel my open challenges with mandatory justification, so that my organization's portfolio remains accurate.","RF13, RF14, RF15, RF17","RB-06 (Mandatory closure justification)","CU-04","Sprint 2","5","Should Have","juan,anorak","#### Scenario 1: Voluntary Closure with Reason
 - **Given** an open challenge owned by the company
 - **When** the company selects 'Close' and provides a justification
 - **Then** state transitions to 'Closed' and justification is recorded.
@@ -324,14 +324,14 @@ As a company, I want to attach PDF or image support documents (up to 10MB) to my
 As a company, I want to edit, close, or cancel my open challenges with mandatory justification, so that my organization's portfolio remains accurate.
 
 ### Traceability
-- **Service/Repo:** `challenge`
+- **Service / Repo:** `challenge`
 - **Requirements:** RF13, RF14, RF15, RF17
 - **Business Rules:** RB-06 (Mandatory closure justification)
 - **Use Case:** CU-04
 - **Sprint:** Sprint 2
 - **Story Points:** 5
 - **Priority:** Should Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @juan @anorak
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Voluntary Closure with Reason
@@ -349,7 +349,7 @@ As a company, I want to edit, close, or cancel my open challenges with mandatory
 - [ ] Validate mandatory closure justification
 - [ ] Emit event on state change
 - [ ] Unit tests for challenge closure workflow"
-"HU-09","challenge","challenge","[CHALLENGE] HU-09: Open Opportunity Catalog Exploration","As an authenticated student, I want to browse the catalog of open challenges and search by keywords, so that I can discover academic collaboration opportunities.","RF19, RF21","RB-05 (Hide direct contact details on catalog exploration)","CU-05","Sprint 2","8","Must Have","anorak,nelson","#### Scenario 1: Catalog Listing
+"HU-09","challenge","challenge","[CHALLENGE] HU-09: Open Opportunity Catalog Exploration","As an authenticated student, I want to browse the catalog of open challenges and search by keywords, so that I can discover academic collaboration opportunities.","RF19, RF21","RB-05 (Hide direct contact details on catalog exploration)","CU-05","Sprint 2","8","Must Have","juan,nelson","#### Scenario 1: Catalog Listing
 - **Given** an authenticated student viewing the catalog
 - **When** the catalog page loads
 - **Then** only challenges with status 'Open' are returned with summary cards.
@@ -364,14 +364,14 @@ As a company, I want to edit, close, or cancel my open challenges with mandatory
 As an authenticated student, I want to browse the catalog of open challenges and search by keywords, so that I can discover academic collaboration opportunities.
 
 ### Traceability
-- **Service/Repo:** `challenge`
+- **Service / Repo:** `challenge`
 - **Requirements:** RF19, RF21
 - **Business Rules:** RB-05 (Hide direct contact details on catalog exploration)
 - **Use Case:** CU-05
 - **Sprint:** Sprint 2
 - **Story Points:** 8
 - **Priority:** Must Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @juan @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Catalog Listing
@@ -389,7 +389,7 @@ As an authenticated student, I want to browse the catalog of open challenges and
 - [ ] Implement detail view route `/api/v1/challenges/{id}/detail`
 - [ ] Ensure company private contacts are excluded from payload
 - [ ] Unit tests for catalog filtering by 'Open' status and pagination"
-"HU-10","challenge","challenge","[CHALLENGE] HU-10: Reactive Multi-Criteria Filtering","As an authenticated student, I want to filter challenges by knowledge area, skills, and industry sector, so that I can quickly pinpoint relevant challenges.","RF20, RF22","RB-05 (Explicit empty-state messaging when no matches occur)","CU-05","Sprint 2","7","Should Have","anorak,nelson","#### Scenario 1: Filter Matches
+"HU-10","challenge","challenge","[CHALLENGE] HU-10: Reactive Multi-Criteria Filtering","As an authenticated student, I want to filter challenges by knowledge area, skills, and industry sector, so that I can quickly pinpoint relevant challenges.","RF20, RF22","RB-05 (Explicit empty-state messaging when no matches occur)","CU-05","Sprint 2","7","Should Have","anorak,juan","#### Scenario 1: Filter Matches
 - **Given** an active catalog with multiple challenges
 - **When** a student filters by 'Machine Learning' and 'Healthcare'
 - **Then** only matching open challenges are returned.
@@ -403,14 +403,14 @@ As an authenticated student, I want to browse the catalog of open challenges and
 As an authenticated student, I want to filter challenges by knowledge area, skills, and industry sector, so that I can quickly pinpoint relevant challenges.
 
 ### Traceability
-- **Service/Repo:** `challenge`
+- **Service / Repo:** `challenge`
 - **Requirements:** RF20, RF22
 - **Business Rules:** RB-05 (Explicit empty-state messaging when no matches occur)
 - **Use Case:** CU-05
 - **Sprint:** Sprint 2
 - **Story Points:** 7
 - **Priority:** Should Have
-- **Code Owners:** @anorak @nelson
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Filter Matches
@@ -448,14 +448,14 @@ As an authenticated student, I want to filter challenges by knowledge area, skil
 As an eligible student (semesters 6-10), I want to submit a contact application with a motivation letter to an open challenge, so that the company can evaluate my academic proposal.
 
 ### Traceability
-- **Service/Repo:** `application`
+- **Service / Repo:** `application`
 - **Requirements:** RF23, RF24, RF28
 - **Business Rules:** RB-02 (Semester verification 6-10) & RB-03 (Single active application per challenge)
 - **Use Case:** CU-06
 - **Sprint:** Sprint 3
 - **Story Points:** 8
 - **Priority:** Must Have
-- **Code Owners:** @anorak @juan
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Valid Application Submission
@@ -500,14 +500,14 @@ As an eligible student (semesters 6-10), I want to submit a contact application 
 As a company, I want to review applications and accept (locking challenge to 'In Progress' and revealing contacts) or reject (requiring mandatory feedback), so that match decisions are formalized.
 
 ### Traceability
-- **Service/Repo:** `application`
+- **Service / Repo:** `application`
 - **Requirements:** RF25, RF26, RF27, RF31
 - **Business Rules:** RB-04 (Atomic lock to 'In Progress') & RB-05 (Reciprocal contact reveal upon acceptance)
 - **Use Case:** CU-07
 - **Sprint:** Sprint 3
 - **Story Points:** 10
 - **Priority:** Must Have
-- **Code Owners:** @anorak @juan
+- **Code Owners:**  @anorak @juan
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Application Acceptance
@@ -546,14 +546,14 @@ As a company, I want to review applications and accept (locking challenge to 'In
 As a platform participant, I want to receive automated email notifications when applications are created or decided, so that I stay informed asynchronously.
 
 ### Traceability
-- **Service/Repo:** `notification`
+- **Service / Repo:** `notification`
 - **Requirements:** RF29, RF30
 - **Business Rules:** RNF06 (SMTP fault tolerance and idempotent delivery)
 - **Use Case:** CU-08
 - **Sprint:** Sprint 3
 - **Story Points:** 8
 - **Priority:** Should Have
-- **Code Owners:** @juan @nelson
+- **Code Owners:**  @juan @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Application Created Notification
@@ -586,14 +586,14 @@ As a platform participant, I want to receive automated email notifications when 
 As an administrator, I want to supervise, suspend, or take down non-compliant challenges or accounts, and keep immutable audit logs, so that academic integrity is upheld.
 
 ### Traceability
-- **Service/Repo:** `moderation`
+- **Service / Repo:** `moderation`
 - **Requirements:** RF32
 - **Business Rules:** RNF03 (Immutable audit logging)
 - **Use Case:** CU-09
 - **Sprint:** Sprint 3
 - **Story Points:** 8
 - **Priority:** Should Have
-- **Code Owners:** @juan @nelson
+- **Code Owners:**  @juan @nelson
 
 ### Acceptance Criteria (Gherkin)
 #### Scenario 1: Challenge Suspension
