@@ -72,6 +72,25 @@ EXITOS=0
 ACTUALIZADOS=0
 FALLIDOS=0
 
+# Sincronizar el repositorio raíz paraguas si se ejecuta desde un clon
+if [ -d "${WORKSPACE_DIR}/.git" ]; then
+  echo -e "\n${BLUE}▶ Procesando repositorio raíz: [${ORG_NAME}]${NC}"
+  cd "$WORKSPACE_DIR"
+  git fetch --all --prune --quiet 2>/dev/null || true
+  ROOT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "desconocida")
+  echo -e "  Rama raíz actual: ${CYAN}${ROOT_BRANCH}${NC}"
+  if git diff-index --quiet HEAD -- 2>/dev/null; then
+    if [ "$ROOT_BRANCH" != "$DEFAULT_BRANCH" ]; then
+      if git show-ref --verify --quiet "refs/heads/$DEFAULT_BRANCH" || git ls-remote --exit-code --heads origin "$DEFAULT_BRANCH" >/dev/null 2>&1; then
+        echo -e "  ${YELLOW}➜ Cambiando rama raíz a: ${DEFAULT_BRANCH}${NC}"
+        git checkout "$DEFAULT_BRANCH" --quiet 2>/dev/null || git checkout -B "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" --quiet 2>/dev/null || true
+        ROOT_BRANCH="$DEFAULT_BRANCH"
+      fi
+    fi
+    git pull origin "$ROOT_BRANCH" --quiet 2>/dev/null || true
+  fi
+fi
+
 for REPO in "${REPOS[@]}"; do
   echo -e "\n${BLUE}▶ Procesando repositorio: [${REPO}]${NC}"
   
@@ -97,7 +116,14 @@ for REPO in "${REPOS[@]}"; do
     
     # Intentar actualizar con pull solo si no hay cambios locales pendientes
     if git diff-index --quiet HEAD -- 2>/dev/null; then
-      git pull --quiet || echo -e "  ${YELLOW}⚠ Advertencia: No se pudo hacer pull en ${CURRENT_BRANCH}.${NC}"
+      if [ "$CURRENT_BRANCH" != "$DEFAULT_BRANCH" ]; then
+        if git show-ref --verify --quiet "refs/heads/$DEFAULT_BRANCH" || git ls-remote --exit-code --heads origin "$DEFAULT_BRANCH" >/dev/null 2>&1; then
+          echo -e "  ${YELLOW}➜ Cambiando a rama objetivo: ${DEFAULT_BRANCH}...${NC}"
+          git checkout "$DEFAULT_BRANCH" --quiet 2>/dev/null || git checkout -B "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH" --quiet 2>/dev/null || true
+          CURRENT_BRANCH="$DEFAULT_BRANCH"
+        fi
+      fi
+      git pull origin "$CURRENT_BRANCH" --quiet || echo -e "  ${YELLOW}⚠ Advertencia: No se pudo hacer pull en ${CURRENT_BRANCH}.${NC}"
     else
       echo -e "  ${YELLOW}⚠ Hay cambios locales sin confirmar; se omitió 'git pull'.${NC}"
     fi
