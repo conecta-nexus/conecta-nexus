@@ -1,0 +1,246 @@
+[
+  {
+    "task_id": "FRONTEND-TASK-01-R",
+    "action": "REOPENED",
+    "issue_number": 9,
+    "url": "https://github.com/conecta-nexus/frontend/issues/9",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "FRONTEND-TASK-02-R",
+    "action": "REOPENED",
+    "issue_number": 10,
+    "url": "https://github.com/conecta-nexus/frontend/issues/10",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "FRONTEND-TASK-03-R",
+    "action": "REOPENED",
+    "issue_number": 11,
+    "url": "https://github.com/conecta-nexus/frontend/issues/11",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-04-R",
+    "action": "REOPENED",
+    "issue_number": 12,
+    "url": "https://github.com/conecta-nexus/frontend/issues/12",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-05-R",
+    "action": "REOPENED",
+    "issue_number": 13,
+    "url": "https://github.com/conecta-nexus/frontend/issues/13",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-06-R",
+    "action": "REOPENED",
+    "issue_number": 14,
+    "url": "https://github.com/conecta-nexus/frontend/issues/14",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-07-R",
+    "action": "REOPENED",
+    "issue_number": 15,
+    "url": "https://github.com/conecta-nexus/frontend/issues/15",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "FRONTEND-TASK-08-R",
+    "action": "REOPENED",
+    "issue_number": 16,
+    "url": "https://github.com/conecta-nexus/frontend/issues/16",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "FRONTEND-TASK-09-R",
+    "action": "REOPENED",
+    "issue_number": 17,
+    "url": "https://github.com/conecta-nexus/frontend/issues/17",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "FRONTEND-TASK-10-R",
+    "action": "REOPENED",
+    "issue_number": 18,
+    "url": "https://github.com/conecta-nexus/frontend/issues/18",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "APPLICATION-TASK-07",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/18",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-08",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/19",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-09",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/20",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "APPLICATION-TASK-10",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/21",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-11",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/22",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-12",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/23",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-13",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/24",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "APPLICATION-TASK-14",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/25",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-15",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/26",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "APPLICATION-TASK-16",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/application/issues/27",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-13",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/frontend/issues/30",
+    "assignee": "juandiegosb"
+  },
+  {
+    "task_id": "FRONTEND-TASK-14",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/frontend/issues/31",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "NOTIFICATION-TASK-01",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/notification/issues/4",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "NOTIFICATION-TASK-02",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/notification/issues/5",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "NOTIFICATION-TASK-03",
+    "action": "SYNCED",
+    "url": "https://github.com/conecta-nexus/notification/issues/6",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "NOTIFICATION-TASK-04",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/notification/issues/7",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "NOTIFICATION-TASK-05",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/notification/issues/8",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "FRONTEND-TASK-15",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/frontend/issues/32",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "MODERATION-TASK-01",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/moderation/issues/4",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "MODERATION-TASK-02",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/moderation/issues/5",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "MODERATION-TASK-03",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/moderation/issues/6",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "MODERATION-TASK-04",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/moderation/issues/7",
+    "assignee": "NelsonConde"
+  },
+  {
+    "task_id": "MODERATION-TASK-05",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/moderation/issues/8",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "FRONTEND-TASK-16",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/frontend/issues/33",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "GATEWAY-TASK-03",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/gateway/issues/10",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "GATEWAY-TASK-04",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/gateway/issues/11",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "INFRA-TASK-05",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/infra/issues/16",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "INFRA-TASK-06",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/infra/issues/17",
+    "assignee": "AnorakTeam"
+  },
+  {
+    "task_id": "INFRA-TASK-07",
+    "action": "CREATED",
+    "url": "https://github.com/conecta-nexus/infra/issues/18",
+    "assignee": "AnorakTeam"
+  }
+]

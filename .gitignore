@@ -14,3 +14,4 @@
 .env.local
 *.log
 .pdf.*
+.pnpm-store/
