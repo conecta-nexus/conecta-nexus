@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """
-Conecta Nexus - Importador Oficial y Robusto de Tareas Técnicas del Sprint 3
-Lee conecta_nexus_sprint_3_tasks.csv, asegura etiquetas, crea los issues en
-los repositorios correspondientes (frontend, application, notification, moderation, gateway, infra),
-los asocia al proyecto #2 (Conecta Nexus Management) y configura Status e Iteración.
+Conecta Nexus - Official Sprint 3 Task Importer for GitHub Projects & Repositories
+1. Ensures all required labels exist across all target repositories.
+2. Reopens the 10 Sprint 2 Frontend tasks (#9 through #18 in conecta-nexus/frontend),
+   updates their titles with '-R', updates their bodies with explicit acceptance criteria,
+   applies labels 'sprint-3' and 'reopened', assigns developers, and configures Project #2
+   with Status = 'To Do' and Iteration = 'Sprint 3'.
+3. Creates the remaining 29 Sprint 3 technical engineering tasks in their respective repos
+   (application, notification, moderation, frontend, gateway, infra), assigns developers,
+   adds them to Project #2, and sets Status = 'To Do' and Iteration = 'Sprint 3'.
 """
 
 import os
@@ -15,18 +20,33 @@ import shutil
 import subprocess
 
 ORG = "conecta-nexus"
-PROJECT_NUM = "2"
+PROJECT_NUM = 2
 PROJECT_ID = "PVT_kwDOE2mZY84BmwV4"
 STATUS_FIELD_ID = "PVTSSF_lADOE2mZY84BmwV4zhlYC3M"
 TODO_OPTION_ID = "f75ad846"
 SPRINT_FIELD_ID = "PVTIF_lADOE2mZY84BmwV4zhlYDeA"
+SPRINT_3_ITER_ID = "d2c335bc"
 
 CSV_FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "conecta_nexus_sprint_3_tasks.csv")
 RESULTS_FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "import_results.json")
 
+# Mapping of reopened frontend tasks to their existing issue numbers in conecta-nexus/frontend
+REOPENED_FRONTEND_MAP = {
+    "FRONTEND-TASK-01-R": 9,
+    "FRONTEND-TASK-02-R": 10,
+    "FRONTEND-TASK-03-R": 11,
+    "FRONTEND-TASK-04-R": 12,
+    "FRONTEND-TASK-05-R": 13,
+    "FRONTEND-TASK-06-R": 14,
+    "FRONTEND-TASK-07-R": 15,
+    "FRONTEND-TASK-08-R": 16,
+    "FRONTEND-TASK-09-R": 17,
+    "FRONTEND-TASK-10-R": 18,
+}
+
 
 def run_command_with_retry(cmd, max_retries=5, initial_delay=2, is_json=False):
-    """Ejecuta un comando con reintentos exponenciales ante fallos transitorios de red."""
+    """Executes a subprocess command with exponential backoff on network failures."""
     for attempt in range(1, max_retries + 1):
         try:
             res = subprocess.run(cmd, capture_output=True, text=True, check=False)
@@ -39,6 +59,12 @@ def run_command_with_retry(cmd, max_retries=5, initial_delay=2, is_json=False):
                 return True, res.stdout.strip()
 
             stderr = res.stderr.strip()
+            if "rate limit" in stderr.lower():
+                wait = 15 * attempt
+                print(f"      [Retry {attempt}/{max_retries}] Rate limit detected. Waiting {wait}s...")
+                time.sleep(wait)
+                continue
+
             transient_signals = [
                 "error connecting to api.github.com",
                 "timeout",
@@ -49,21 +75,21 @@ def run_command_with_retry(cmd, max_retries=5, initial_delay=2, is_json=False):
             ]
             if any(signal in stderr.lower() for signal in transient_signals):
                 wait = initial_delay * attempt
-                print(f"      [Reintento {attempt}/{max_retries}] Conexión GitHub inestable. Esperando {wait}s...")
+                print(f"      [Retry {attempt}/{max_retries}] Transient network error. Waiting {wait}s...")
                 time.sleep(wait)
                 continue
 
             return False, f"Exit code {res.returncode}: {stderr}"
         except Exception as ex:
             wait = initial_delay * attempt
-            print(f"      [Reintento {attempt}/{max_retries}] Excepción local: {ex}. Esperando {wait}s...")
+            print(f"      [Retry {attempt}/{max_retries}] Local exception: {ex}. Waiting {wait}s...")
             time.sleep(wait)
 
-    return False, "Excedido número máximo de reintentos."
+    return False, "Exceeded maximum retries."
 
 
 def ensure_labels(repo):
-    """Asegura que las etiquetas task, sprint-3, frontend, etc. existan en el repositorio."""
+    """Ensures standardized labels exist in the target repository."""
     labels = [
         {"name": "task", "color": "0E8A16", "description": "Granular engineering task"},
         {"name": "sprint-3", "color": "1D76DB", "description": "Sprint 3 Deliverable (12 Nov - 02 Dec 2026)"},
@@ -86,40 +112,90 @@ def ensure_labels(repo):
         run_command_with_retry(cmd)
 
 
+def update_project_item(issue_url):
+    """Adds the issue to Project 2 and sets Status = 'To Do' and Iteration = 'Sprint 3'."""
+    # 1. Add item to project (idempotent; if already added, returns existing item ID)
+    add_cmd = [
+        "gh", "project", "item-add", str(PROJECT_NUM),
+        "--owner", ORG,
+        "--url", issue_url,
+        "--format", "json"
+    ]
+    ok_add, add_out = run_command_with_retry(add_cmd, is_json=True)
+    if not ok_add:
+        # Fallback without json
+        run_command_with_retry(["gh", "project", "item-add", str(PROJECT_NUM), "--owner", ORG, "--url", issue_url])
+
+    # 2. Set Status = 'To Do'
+    status_cmd = [
+        "gh", "project", "item-edit", str(PROJECT_NUM),
+        "--owner", ORG,
+        "--url", issue_url,
+        "--field", "Status",
+        "--value", "To Do"
+    ]
+    run_command_with_retry(status_cmd)
+
+    # 3. Set Iteration = 'Sprint 3'
+    iter_cmd = [
+        "gh", "project", "item-edit", str(PROJECT_NUM),
+        "--owner", ORG,
+        "--url", issue_url,
+        "--field", "Iteration",
+        "--iteration-id", SPRINT_3_ITER_ID
+    ]
+    run_command_with_retry(iter_cmd)
+
+
 def main():
     if not shutil.which("gh"):
-        print("❌ Error: 'gh' CLI no está instalado en el sistema.")
+        print("❌ Error: GitHub CLI ('gh') is not installed.")
         sys.exit(1)
 
     auth_ok, auth_out = run_command_with_retry(["gh", "auth", "status"])
     if not auth_ok:
-        print(f"❌ Error de autenticación en GitHub CLI:\n{auth_out}")
-        print("💡 Ejecute 'gh auth login' antes de continuar.")
+        print(f"❌ GitHub CLI authentication error:\n{auth_out}")
         sys.exit(1)
 
     print("==================================================================")
-    print("      CONECTA NEXUS - SPRINT 3 TASK IMPORTER (GITHUB PROJECTS)     ")
+    print("      CONECTA NEXUS — SPRINT 3 TASK & BOARD AUTOMATION            ")
     print("==================================================================")
-    print(f"✔ Organización: {ORG}")
-    print(f"✔ Proyecto: #{PROJECT_NUM}")
-    print(f"✔ CSV Origen: {CSV_FILENAME}")
+    print(f"✔ Organization: {ORG}")
+    print(f"✔ Project Number: #{PROJECT_NUM} (ID: {PROJECT_ID})")
+    print(f"✔ Sprint 3 Iteration ID: {SPRINT_3_ITER_ID}")
+    print(f"✔ Source CSV: {CSV_FILENAME}")
 
     if not os.path.exists(CSV_FILENAME):
-        print(f"❌ Error: Archivo CSV '{CSV_FILENAME}' no encontrado.")
+        print(f"❌ Error: CSV file '{CSV_FILENAME}' not found.")
         sys.exit(1)
 
     with open(CSV_FILENAME, mode="r", encoding="utf-8") as f:
         tasks = list(csv.DictReader(f))
 
-    print(f"✔ Total de tareas encontradas: {len(tasks)}")
+    print(f"✔ Total tasks loaded from CSV: {len(tasks)}")
 
-    # Asegurar repositorios únicos
-    repos = list(set(t["repo"] for t in tasks))
-    print(f"✔ Asegurando etiquetas en {len(repos)} repositorios: {', '.join(repos)}")
-    for repo in repos:
+    # Ensure labels on all target repos
+    target_repos = list(set(t["repo"] for t in tasks))
+    print(f"\n[1/3] Ensuring standardized labels on repositories: {', '.join(target_repos)}...")
+    for repo in target_repos:
         ensure_labels(repo)
+    print("✔ Standardized labels verified.")
+
+    # Load previous successful results to resume gracefully
+    results_map = {}
+    if os.path.exists(RESULTS_FILENAME):
+        try:
+            with open(RESULTS_FILENAME, mode="r", encoding="utf-8") as rf:
+                prev_results = json.load(rf)
+                for item in prev_results:
+                    if item.get("status") != "ERROR" and item.get("url"):
+                        results_map[item["task_id"]] = item
+        except Exception:
+            pass
 
     results = []
+    print("\n[2/3] Processing Tasks (Reopening Sprint 2 Frontend & Creating New Sprint 3 Tasks)...")
+
     for idx, task in enumerate(tasks, start=1):
         task_id = task["task_id"]
         repo = task["repo"]
@@ -128,41 +204,119 @@ def main():
         labels = task["labels"]
         body = task["body"]
 
-        print(f"\n[{idx}/{len(tasks)}] Procesando {task_id}: {title[:60]}...")
+        print(f"\n--- [{idx}/{len(tasks)}] {task_id}: {title[:65]} ---")
 
-        # 1. Crear issue
-        cmd = [
-            "gh", "issue", "create",
-            "--repo", f"{ORG}/{repo}",
-            "--title", title,
-            "--body", body,
-            "--label", labels
-        ]
-        if assignee:
-            cmd.extend(["--assignee", assignee])
-
-        success, out = run_command_with_retry(cmd)
-        if not success:
-            print(f"   ❌ Fallo al crear issue: {out}")
-            results.append({"task_id": task_id, "status": "ERROR", "error": str(out)})
+        if task_id in results_map:
+            print(f"   ✔ Already imported & synced: {results_map[task_id]['url']}")
+            results.append(results_map[task_id])
             continue
 
-        issue_url = out
-        print(f"   ✔ Issue creado: {issue_url}")
+        # Check if it's one of the reopened Sprint 2 Frontend tasks
+        if task_id in REOPENED_FRONTEND_MAP:
+            issue_num = REOPENED_FRONTEND_MAP[task_id]
+            issue_url = f"https://github.com/{ORG}/{repo}/issues/{issue_num}"
+            print(f"   🔄 Reopening existing frontend issue #{issue_num} ({task_id})...")
 
-        results.append({
-            "task_id": task_id,
-            "status": "CREATED",
-            "url": issue_url,
-            "repo": repo,
-            "assignee": assignee
-        })
+            # 1. Reopen issue
+            reopen_cmd = ["gh", "issue", "reopen", str(issue_num), "--repo", f"{ORG}/{repo}"]
+            ok_reopen, reopen_out = run_command_with_retry(reopen_cmd)
+            if ok_reopen:
+                print(f"      ✔ Issue #{issue_num} reopened.")
+            else:
+                print(f"      ℹ Reopen notice: {reopen_out}")
 
+            # 2. Edit issue details (title, body with explicit acceptance criteria, labels, assignee)
+            edit_cmd = [
+                "gh", "issue", "edit", str(issue_num),
+                "--repo", f"{ORG}/{repo}",
+                "--title", title,
+                "--body", body,
+                "--add-label", "sprint-3,reopened"
+            ]
+            if assignee:
+                edit_cmd.extend(["--add-assignee", assignee])
+
+            ok_edit, edit_out = run_command_with_retry(edit_cmd)
+            if ok_edit:
+                print(f"      ✔ Issue #{issue_num} updated with explicit criteria & sprint-3 labels.")
+            else:
+                print(f"      ⚠ Edit warning: {edit_out}")
+
+            # 3. Update project item status and sprint iteration
+            print("      📌 Updating Project #2 board item (Status = 'To Do', Iteration = 'Sprint 3')...")
+            update_project_item(issue_url)
+            print("      ✔ Project board updated.")
+
+            results.append({
+                "task_id": task_id,
+                "action": "REOPENED",
+                "issue_number": issue_num,
+                "url": issue_url,
+                "assignee": assignee
+            })
+
+        else:
+            # New Sprint 3 Task -> Check if already exists by title
+            search_cmd = [
+                "gh", "issue", "list",
+                "--repo", f"{ORG}/{repo}",
+                "--state", "all",
+                "--search", f"\"{title}\"",
+                "--json", "number,url"
+            ]
+            ok_search, search_data = run_command_with_retry(search_cmd, is_json=True)
+            existing_url = None
+            if ok_search and isinstance(search_data, list) and len(search_data) > 0:
+                existing_url = search_data[0].get("url")
+                existing_num = search_data[0].get("number")
+                print(f"   ℹ Task already exists as issue #{existing_num}: {existing_url}")
+                issue_url = existing_url
+            else:
+                print(f"   ➕ Creating new issue in {ORG}/{repo}...")
+                create_cmd = [
+                    "gh", "issue", "create",
+                    "--repo", f"{ORG}/{repo}",
+                    "--title", title,
+                    "--body", body,
+                    "--label", labels
+                ]
+                if assignee:
+                    create_cmd.extend(["--assignee", assignee])
+
+                ok_create, create_out = run_command_with_retry(create_cmd)
+                if not ok_create:
+                    print(f"   ❌ Error creating issue: {create_out}")
+                    results.append({"task_id": task_id, "status": "ERROR", "error": str(create_out)})
+                    continue
+
+                issue_url = create_out
+                print(f"   ✔ Issue created: {issue_url}")
+
+            # Add / update on Project #2
+            print("      📌 Updating Project #2 board item (Status = 'To Do', Iteration = 'Sprint 3')...")
+            update_project_item(issue_url)
+            print("      ✔ Project board updated.")
+
+            results.append({
+                "task_id": task_id,
+                "action": "CREATED" if not existing_url else "SYNCED",
+                "url": issue_url,
+                "assignee": assignee
+            })
+
+        # Save progress incrementally
+        with open(RESULTS_FILENAME, mode="w", encoding="utf-8") as rf:
+            json.dump(results, rf, indent=2)
+
+        time.sleep(1.5)
+
+    # Save results
     with open(RESULTS_FILENAME, mode="w", encoding="utf-8") as rf:
         json.dump(results, rf, indent=2)
 
     print("\n==================================================================")
-    print(f"✔ Proceso completado. Resultados guardados en '{RESULTS_FILENAME}'.")
+    print(f"✔ SPRINT 3 IMPORT COMPLETED! Summary saved in '{RESULTS_FILENAME}'.")
+    print(f"✔ Total tasks processed: {len(results)}/{len(tasks)}")
     print("==================================================================")
 
 

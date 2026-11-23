@@ -343,101 +343,12 @@ TASKS = [
     # HU-11: Submit Contact Application with Motivation Letter (8 pts - Must Have)
     # =========================================================================
     {
-        "task_id": "APPLICATION-TASK-01",
+        "task_id": "APPLICATION-TASK-07",
         "repo": "application",
         "service": "application",
         "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[APPLICATION-TASK-01] Application Database Model, PostgreSQL Constraints & Migrations",
-        "assignee": "juandiegosb",
-        "labels": "task,sprint-3,application",
-        "objective": "Implement the core Application Django ORM model in db_applications with unique compound constraint (student_id, challenge_id) enforcing RB-03, status enum, and motivation letter.",
-        "specs": (
-            "- Database: PostgreSQL 16 (db_applications)\n"
-            "- Model: Application (apps/applications/models.py)\n"
-            "- Fields: id (UUID PK), student_id (UUID), challenge_id (UUID), motivation_letter (TextField, min 20 chars), status (PENDING, ACCEPTED, REJECTED, CANCELLED), feedback_reason (TextField nullable), created_at, updated_at\n"
-            "- Constraints: UniqueConstraint(fields=['student_id', 'challenge_id'], name='unique_student_challenge_application') enforcing RB-03"
-        ),
-        "acceptance_criteria": (
-            "- **Database Migration:** Django migration runs cleanly on PostgreSQL creating `applications_application` table.\n"
-            "- **RB-03 Non-Duplicity Guarantee:** Attempting to insert a record with identical `(student_id, challenge_id)` raises IntegrityError at database level.\n"
-            "- **Default Status:** New applications default strictly to 'PENDING'.\n"
-            "- **Indexes:** B-Tree indexes on `student_id`, `challenge_id`, and `status` for fast lookup."
-        ),
-        "deliverables": (
-            "- [ ] Create Application model in apps/applications/models.py\n"
-            "- [ ] Generate and execute Django migrations\n"
-            "- [ ] Unit tests verifying table creation and unique constraint"
-        ),
-        "verification": "podman exec conecta-application python manage.py migrate"
-    },
-    {
-        "task_id": "APPLICATION-TASK-02",
-        "repo": "application",
-        "service": "application",
-        "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[APPLICATION-TASK-02] Inter-Service Synchronous Verification Clients (Profile & Challenge)",
-        "assignee": "AnorakTeam",
-        "labels": "task,sprint-3,application",
-        "objective": "Build and verify robust synchronous HTTP clients in Application service to validate student eligibility & consent against Profile service, and open status against Challenge public catalog.",
-        "specs": (
-            "- Target Files:\n"
-            "  * apps/applications/clients/profile_client.py\n"
-            "  * apps/applications/clients/challenge_client.py\n"
-            "- Profile Client: GET /api/v1/profiles/internal/{user_id}/eligibility (validates is_eligible, current_semester >= 6, has_consent=True)\n"
-            "- Challenge Client: GET /api/v1/challenges/catalog/{challenge_id} (validates existence and status == 'OPEN')\n"
-            "- Timeout & Retries: 3.0s timeout with connection pool limits"
-        ),
-        "acceptance_criteria": (
-            "- **Challenge Validation:** Validates challenge is strictly OPEN via catalog endpoint; translates 404 to ChallengeNotFoundError and non-open status to ChallengeNotOpenError.\n"
-            "- **Profile Eligibility Validation:** Confirms semester between 6 and 10 (RB-02) and Habeas Data consent (RB-02); raises StudentNotEligibleError or ConsentMissingError on violation.\n"
-            "- **Fault Tolerance:** Catches httpx.ConnectError / ReadTimeout and cleanly raises ChallengeServiceUnavailableError / ProfileServiceUnavailableError mapping to HTTP 502."
-        ),
-        "deliverables": (
-            "- [ ] Implement and harden ChallengeServiceClient in apps/applications/clients/challenge_client.py\n"
-            "- [ ] Implement and harden ProfileServiceClient in apps/applications/clients/profile_client.py\n"
-            "- [ ] Pytest integration suite with respx mocks in apps/applications/tests/test_challenge_client.py & test_profile_client.py"
-        ),
-        "verification": "podman exec conecta-application uv run pytest apps/applications/tests/test_challenge_client.py apps/applications/tests/test_profile_client.py"
-    },
-    {
-        "task_id": "APPLICATION-TASK-03",
-        "repo": "application",
-        "service": "application",
-        "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[APPLICATION-TASK-03] Student Application Submission REST Endpoint (POST /api/v1/applications/)",
-        "assignee": "juandiegosb",
-        "labels": "task,sprint-3,application",
-        "objective": "Expose and secure the application submission endpoint enforcing RBAC (STUDENT only), non-duplicity fast check, inter-service validations, and atomic persistence.",
-        "specs": (
-            "- Endpoint: POST /api/v1/applications/\n"
-            "- Permissions: IsAuthenticated, require_role('STUDENT')\n"
-            "- Request Body: { challenge_id: UUID, motivation_letter: string (20-2000 chars) }\n"
-            "- Response: HTTP 201 Created with Application details\n"
-            "- Errors: 400 Bad Request (ineligible / no consent), 404 Not Found (challenge missing), 409 Conflict (duplicate application RB-03), 422 Unprocessable (challenge not open), 502 Bad Gateway (upstream failure)"
-        ),
-        "acceptance_criteria": (
-            "- **RBAC Authorization:** Only authenticated users with role STUDENT can submit; COMPANY role returns HTTP 403 Forbidden.\n"
-            "- **Duplicate Rejection (RB-03):** Immediate 409 Conflict if application exists for student + challenge.\n"
-            "- **Validation Pipeline:** Sequentially checks duplicity -> challenge open status -> profile semester & consent -> persists application in db.\n"
-            "- **HTTP Response:** Returns 201 Created with application UUID, initial status 'PENDING', and timestamps."
-        ),
-        "deliverables": (
-            "- [ ] Implement ApplicationCreateView in apps/applications/views.py\n"
-            "- [ ] Register URL routing in apps/applications/urls.py\n"
-            "- [ ] Pytest test cases in apps/applications/tests/test_views.py"
-        ),
-        "verification": "podman exec conecta-application uv run pytest apps/applications/tests/test_views.py"
-    },
-    {
-        "task_id": "APPLICATION-TASK-04",
-        "repo": "application",
-        "service": "application",
-        "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[APPLICATION-TASK-04] Student Applications Consultation Endpoints (GET /me/ & GET /{id}/)",
+        "parent_issue_number": "2",
+        "title": "[APPLICATION-TASK-07] Student Applications Consultation Endpoints (GET /me/ & GET /{id}/)",
         "assignee": "juandiegosb",
         "labels": "task,sprint-3,application",
         "objective": "Create endpoints allowing students to inspect their own application history, view status updates (Pending, Accepted, Rejected), and read company feedback.",
@@ -459,76 +370,17 @@ TASKS = [
         ),
         "verification": "podman exec conecta-application uv run pytest -k 'student_applications'"
     },
-    {
-        "task_id": "FRONTEND-TASK-11",
-        "repo": "frontend",
-        "service": "frontend",
-        "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[FRONTEND-TASK-11] Student Application Submission Modal & Motivation Letter Form",
-        "assignee": "juandiegosb",
-        "labels": "task,sprint-3,frontend",
-        "objective": "Develop the ApplicationSubmissionModal component enabling eligible students to compose and submit their motivation letter with character limits and confirmation.",
-        "specs": (
-            "- Component: app/components/applications/ApplicationSubmissionModal.vue\n"
-            "- Props: isOpen (boolean), challenge (Challenge)\n"
-            "- Form Input: motivationLetter (textarea, 20 to 2000 characters)\n"
-            "- API: POST /api/v1/applications/"
-        ),
-        "acceptance_criteria": (
-            "- **Visual Layout & Dialog:** Accessible modal with clear header: 'Apply to [Challenge Title]'. Displays student academic reminder badge ('Applying as Semester X Student').\n"
-            "- **Dynamic Character Counter:** Textarea shows live character counter (`X / 20 min characters`). Warning border appears if under 20 chars.\n"
-            "- **Submit Action & Spinner:** 'Submit Academic Proposal' button disabled until letter >= 20 chars. Shows spinner while submitting.\n"
-            "- **Success Experience:** On HTTP 201, closes modal, shows green celebration toast, and marks challenge page with an 'Applied' badge."
-        ),
-        "deliverables": (
-            "- [ ] Build app/components/applications/ApplicationSubmissionModal.vue\n"
-            "- [ ] Add motivation letter validation and character counter\n"
-            "- [ ] Vitest unit tests in tests/components/applications/ApplicationSubmissionModal.spec.ts"
-        ),
-        "verification": "cd frontend && pnpm test tests/components/applications/ApplicationSubmissionModal.spec.ts"
-    },
-    {
-        "task_id": "FRONTEND-TASK-12",
-        "repo": "frontend",
-        "service": "frontend",
-        "parent_story": "HU-11",
-        "parent_issue_number": "6",
-        "title": "[FRONTEND-TASK-12] Student Applications Portfolio Page (/applications)",
-        "assignee": "juandiegosb",
-        "labels": "task,sprint-3,frontend",
-        "objective": "Create the Student Applications Management Page (/applications) allowing students to track active and past applications, check match statuses, and view feedback.",
-        "specs": (
-            "- Route: /applications\n"
-            "- Role Guard: STUDENT only\n"
-            "- Filter Tabs: All, Pending, Accepted, Rejected\n"
-            "- Card Elements: Challenge Title, Company Name, Applied Date, Status Badge, Feedback Expander"
-        ),
-        "acceptance_criteria": (
-            "- **Visual Application Cards:** Grid of cards featuring status pills (Yellow: Pending, Green: Accepted, Red: Rejected).\n"
-            "- **Accepted Match Card:** For accepted applications, displays an highlighted green card showing company contacts (email, phone, contact person) with click-to-email and click-to-call actions.\n"
-            "- **Rejection Feedback Card:** For rejected applications, displays an expandable feedback alert detailing the company's reason.\n"
-            "- **Empty State:** If student has 0 applications in the selected tab, renders a friendly illustration with a 'Browse Open Opportunities' CTA button."
-        ),
-        "deliverables": (
-            "- [ ] Create app/pages/applications/index.vue\n"
-            "- [ ] Implement status tabs and responsive card grid\n"
-            "- [ ] Add accepted contact cards and rejection reason expander\n"
-            "- [ ] Vitest unit tests in tests/pages/applications/index.spec.ts"
-        ),
-        "verification": "cd frontend && pnpm test tests/pages/applications/index.spec.ts"
-    },
 
     # =========================================================================
     # HU-12: Company Evaluation and Atomic State Transition (10 pts - Must Have)
     # =========================================================================
     {
-        "task_id": "APPLICATION-TASK-05",
+        "task_id": "APPLICATION-TASK-08",
         "repo": "application",
         "service": "application",
         "parent_story": "HU-12",
-        "parent_issue_number": "7",
-        "title": "[APPLICATION-TASK-05] Company Challenge Applications Listing & Detail Endpoints (GET /challenge/{id}/)",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-08] Company Challenge Applications Listing & Detail Endpoints (GET /challenge/{id}/)",
         "assignee": "juandiegosb",
         "labels": "task,sprint-3,application",
         "objective": "Expose endpoints for companies to list and review all student applications submitted to their owned challenges, integrating public student academic profiles.",
@@ -551,12 +403,12 @@ TASKS = [
         "verification": "podman exec conecta-application uv run pytest -k 'company_applications'"
     },
     {
-        "task_id": "APPLICATION-TASK-06",
+        "task_id": "APPLICATION-TASK-09",
         "repo": "application",
         "service": "application",
         "parent_story": "HU-12",
-        "parent_issue_number": "7",
-        "title": "[APPLICATION-TASK-06] Atomic Application Acceptance & Challenge Locking State Machine (RB-04, RB-05)",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-09] Atomic Application Acceptance & Challenge Locking State Machine (RB-04, RB-05)",
         "assignee": "AnorakTeam",
         "labels": "task,sprint-3,application",
         "objective": "Implement the atomic match transaction in Application service: accepting an application transitions status to ACCEPTED, locks the parent challenge to IN_PROGRESS (RB-04), and reveals reciprocal contacts (RB-05).",
@@ -582,12 +434,12 @@ TASKS = [
         "verification": "podman exec conecta-application uv run pytest -k 'test_accept_application'"
     },
     {
-        "task_id": "APPLICATION-TASK-07",
+        "task_id": "APPLICATION-TASK-10",
         "repo": "application",
         "service": "application",
         "parent_story": "HU-12",
-        "parent_issue_number": "7",
-        "title": "[APPLICATION-TASK-07] Application Rejection with Mandatory Explanation Endpoint (POST /{id}/reject/)",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-10] Application Rejection with Mandatory Explanation Endpoint (POST /{id}/reject/)",
         "assignee": "juandiegosb",
         "labels": "task,sprint-3,application",
         "objective": "Implement application rejection endpoint requiring a mandatory explanatory reason (min 15 chars) while preserving the challenge in OPEN status.",
@@ -609,12 +461,97 @@ TASKS = [
         "verification": "podman exec conecta-application uv run pytest -k 'test_reject_application'"
     },
     {
-        "task_id": "APPLICATION-TASK-08",
+        "task_id": "APPLICATION-TASK-11",
         "repo": "application",
         "service": "application",
         "parent_story": "HU-12",
-        "parent_issue_number": "7",
-        "title": "[APPLICATION-TASK-08] Complete Integration Test Suite for Application Service",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-11] Reciprocal Contact Reveal Serialization & Protection (Law 1581)",
+        "assignee": "juandiegosb",
+        "labels": "task,sprint-3,application",
+        "objective": "Implement the privacy-safe serialization logic exposing reciprocal corporate and academic contact details strictly when an application reaches ACCEPTED status.",
+        "specs": (
+            "- Serialization: ApplicationDetailSerializer (apps/applications/serializers.py)\n"
+            "- Rules: RB-05, Law 1581 (Habeas Data)\n"
+            "- Masked State: For PENDING/REJECTED, contacts field is omitted or null\n"
+            "- Unmasked State: For ACCEPTED, includes { email, phone, contact_name }"
+        ),
+        "acceptance_criteria": (
+            "- **Strict Contact Shielding:** Serializer guarantees email and phone are never present in JSON when status is PENDING or REJECTED.\n"
+            "- **Unmasked on Match (RB-05):** Once ACCEPTED, both student and company retrieve full reciprocal communication channels.\n"
+            "- **Security Tests:** Unit tests verify that serialized output of non-accepted applications omits sensitive contact fields."
+        ),
+        "deliverables": (
+            "- [ ] Create ApplicationDetailSerializer with conditional contact projection\n"
+            "- [ ] Add serializer tests in apps/applications/tests/test_serializers.py\n"
+            "- [ ] Verify compliance with Law 1581 Habeas Data rules"
+        ),
+        "verification": "podman exec conecta-application uv run pytest apps/applications/tests/test_serializers.py"
+    },
+    {
+        "task_id": "APPLICATION-TASK-12",
+        "repo": "application",
+        "service": "application",
+        "parent_story": "HU-12",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-12] Application Status Notification Domain Event Emitter",
+        "assignee": "juandiegosb",
+        "labels": "task,sprint-3,application",
+        "objective": "Build the asynchronous domain event dispatcher in Application service to emit ApplicationCreated, ApplicationAccepted, and ApplicationRejected events to the Notification service.",
+        "specs": (
+            "- Target Files: apps/applications/events.py, apps/applications/views.py\n"
+            "- Events Emitted:\n"
+            "  * APPLICATION_CREATED (student_id, challenge_id, company_id)\n"
+            "  * APPLICATION_ACCEPTED (application_id, student_id, company_id, contacts)\n"
+            "  * APPLICATION_REJECTED (application_id, student_id, feedback_reason)\n"
+            "- Delivery: Non-blocking HTTP webhook / async client to Notification microservice"
+        ),
+        "acceptance_criteria": (
+            "- **Non-Blocking Execution:** Event dispatch failures must be logged as warnings without rolling back the core application database transaction.\n"
+            "- **Event Payload Integrity:** Emitted JSON contains complete contextual metadata for transactional email generation.\n"
+            "- **Unit Tests:** Mock transport tests verify event emission upon status transition."
+        ),
+        "deliverables": (
+            "- [ ] Implement EventDispatcher in apps/applications/events.py\n"
+            "- [ ] Hook dispatcher into application submission, accept, and reject views\n"
+            "- [ ] Pytest test cases verifying event payload and delivery"
+        ),
+        "verification": "podman exec conecta-application uv run pytest apps/applications/tests/test_events.py"
+    },
+    {
+        "task_id": "APPLICATION-TASK-13",
+        "repo": "application",
+        "service": "application",
+        "parent_story": "HU-12",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-13] Concurrency & Race Condition Defense with select_for_update()",
+        "assignee": "AnorakTeam",
+        "labels": "task,sprint-3,application",
+        "objective": "Harden application acceptance and submission views against concurrent race conditions using PostgreSQL row-level locks (select_for_update) and transaction isolation.",
+        "specs": (
+            "- Views: ApplicationAcceptView, ApplicationCreateView\n"
+            "- Lock Strategy: select_for_update() on parent Challenge and target Application rows\n"
+            "- Deadlock Prevention: Consistent lock acquisition ordering"
+        ),
+        "acceptance_criteria": (
+            "- **Race Condition Proof:** Concurrent accept requests for different candidates on the same challenge guarantee exactly one candidate is accepted while others fail gracefully.\n"
+            "- **Double Submit Guard:** Fast simultaneous submissions from the same student are serialized without database deadlock.\n"
+            "- **Concurrency Tests:** Threaded pytest integration test simulating concurrent requests."
+        ),
+        "deliverables": (
+            "- [ ] Apply select_for_update() locks in apps/applications/views.py\n"
+            "- [ ] Add multi-threaded concurrency pytest test cases\n"
+            "- [ ] Clean transaction isolation verification"
+        ),
+        "verification": "podman exec conecta-application uv run pytest -k 'test_concurrency'"
+    },
+    {
+        "task_id": "APPLICATION-TASK-14",
+        "repo": "application",
+        "service": "application",
+        "parent_story": "HU-12",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-14] Complete Integration Test Suite for Application Service",
         "assignee": "juandiegosb",
         "labels": "task,sprint-3,application",
         "objective": "Consolidate and execute a comprehensive Pytest test suite covering full application lifecycle, business rules RB-02, RB-03, RB-04, RB-05, and error status codes.",
@@ -632,6 +569,61 @@ TASKS = [
             "- [ ] Execute and verify test coverage report"
         ),
         "verification": "podman exec conecta-application uv run pytest --cov=apps/applications"
+    },
+    {
+        "task_id": "APPLICATION-TASK-15",
+        "repo": "application",
+        "service": "application",
+        "parent_story": "HU-12",
+        "parent_issue_number": "1",
+        "title": "[APPLICATION-TASK-15] Application Status Change Signal & Background Task Dispatcher",
+        "assignee": "juandiegosb",
+        "labels": "task,sprint-3,application",
+        "objective": "Implement Django post_save model signals and background task hooks to dispatch domain event notifications asynchronously without delaying HTTP client responses.",
+        "specs": (
+            "- Target Files: apps/applications/signals.py, apps/applications/apps.py\n"
+            "- Signals: post_save signal on Application model listening for status transitions\n"
+            "- Dispatch Strategy: Asynchronous thread pool / task queue trigger"
+        ),
+        "acceptance_criteria": (
+            "- **Asynchronous Decoupling:** Signal execution does not increase HTTP view latency.\n"
+            "- **Transition Detection:** Dispatches only when `status` field actually changes.\n"
+            "- **Error Safety:** Signal exceptions are logged with traceback without aborting HTTP 200 response."
+        ),
+        "deliverables": (
+            "- [ ] Implement application signals in apps/applications/signals.py\n"
+            "- [ ] Register signals in ApplicationsConfig.ready()\n"
+            "- [ ] Unit tests verifying signal triggering on status modification"
+        ),
+        "verification": "podman exec conecta-application uv run pytest -k 'test_signals'"
+    },
+    {
+        "task_id": "APPLICATION-TASK-16",
+        "repo": "application",
+        "service": "application",
+        "parent_story": "HU-11",
+        "parent_issue_number": "2",
+        "title": "[APPLICATION-TASK-16] Student Application Voluntary Withdrawal Endpoint (POST /{id}/cancel/)",
+        "assignee": "juandiegosb",
+        "labels": "task,sprint-3,application",
+        "objective": "Allow students to voluntarily withdraw their own PENDING application, transitioning status to CANCELLED and freeing the slot under rule RB-03.",
+        "specs": (
+            "- Endpoint: POST /api/v1/applications/{id}/cancel/\n"
+            "- Permissions: IsAuthenticated, Student Owner Guard\n"
+            "- State Restriction: Only allowed while status == 'PENDING'\n"
+            "- Response: HTTP 200 OK with updated status='CANCELLED'"
+        ),
+        "acceptance_criteria": (
+            "- **Owner Guard:** Students can only cancel their own applications; others return 403.\n"
+            "- **Pending Guard:** Attempting to cancel an already ACCEPTED or REJECTED application returns HTTP 422.\n"
+            "- **RB-03 Slot Freeing:** Student can submit a fresh application after canceling."
+        ),
+        "deliverables": (
+            "- [ ] Implement ApplicationCancelView in apps/applications/views.py\n"
+            "- [ ] Add cancellation route to apps/applications/urls.py\n"
+            "- [ ] Pytest unit tests for voluntary withdrawal"
+        ),
+        "verification": "podman exec conecta-application uv run pytest -k 'test_cancel_application'"
     },
     {
         "task_id": "FRONTEND-TASK-13",
