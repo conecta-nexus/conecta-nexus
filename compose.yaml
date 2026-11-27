@@ -22,8 +22,78 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data:Z
+      - postgres_data:/var/lib/postgresql/data
       - ./setup/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro,Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # MinIO / S3-compatible Object Storage (Challenge Attachments)
+  # ----------------------------------------------------------------------------
+  minio:
+    image: docker.io/pgsty/silo:RELEASE.2026-11-09T00-00-00Z
+    container_name: conecta-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-conectaadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-this-storage-secret}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "silo", "healthcheck", "ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - conecta-net
+
+  minio-init:
+    image: docker.io/pgsty/mc:RELEASE.2026-11-09T00-00-00Z
+    container_name: conecta-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >
+        mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-conectaadmin} $${MINIO_ROOT_PASSWORD:-change-this-storage-secret} &&
+        mc mb --ignore-existing local/challenge-attachments &&
+        mc anonymous set none local/challenge-attachments
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-conectaadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-this-storage-secret}
+    networks:
+      - conecta-net
+
+  # ----------------------------------------------------------------------------
+  # Mailpit: Local SMTP Testing Server & Web UI (HU-13)
+  # ----------------------------------------------------------------------------
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: conecta-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8025/readyz >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
     networks:
       - conecta-net
 
@@ -47,8 +117,15 @@ services:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/db_auth
       - DB_ECHO=false
       - APP_ENV=development
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -65,13 +142,21 @@ services:
       - "8002:8000"
     volumes:
       - ./profile:/app:Z
+      - ./auth/certs/jwt_public.pem:/app/certs/jwt_public.pem:ro,Z
     env_file:
       - ./profile/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_profiles
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/admin/login/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -88,13 +173,25 @@ services:
       - "8003:8000"
     volumes:
       - ./application:/app:Z
+      - ./auth/certs/jwt_public.pem:/app/certs/jwt_public.pem:ro,Z
     env_file:
       - ./application/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_applications
+      - CHALLENGE_SERVICE_URL=http://challenge:8000
+      - PROFILE_SERVICE_URL=http://profile:8000
+      - NOTIFICATION_SERVICE_URL=http://notification:8000
+      - APPLICATION_EVENT_SECRET=${APPLICATION_EVENT_SECRET:-conecta-nexus-local-application-event-secret-2026}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -111,13 +208,31 @@ services:
       - "8004:8000"
     volumes:
       - ./challenge:/app:Z
+      - ./auth/certs/jwt_public.pem:/app/certs/jwt_public.pem:ro,Z
     env_file:
       - ./challenge/.env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_challenges
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/db_challenges
+      - STORAGE_ENDPOINT=minio:9000
+      - STORAGE_ACCESS_KEY=${MINIO_ROOT_USER:-conectaadmin}
+      - STORAGE_SECRET_KEY=${MINIO_ROOT_PASSWORD:-change-this-storage-secret}
+      - STORAGE_BUCKET=challenge-attachments
+      - STORAGE_SECURE=false
+      - STORAGE_AUTO_CREATE_BUCKET=false
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     networks:
       - conecta-net
 
@@ -134,13 +249,23 @@ services:
       - "8005:8000"
     volumes:
       - ./moderation:/app:Z
+      - ./auth/certs/jwt_public.pem:/app/certs/jwt_public.pem:ro,Z
     env_file:
       - ./moderation/.env
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_moderation
+      - CHALLENGE_SERVICE_URL=http://challenge:8000
+      - AUTH_SERVICE_URL=http://auth:8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -157,13 +282,30 @@ services:
       - "8006:8000"
     volumes:
       - ./notification:/app:Z
+      - ./auth/certs/jwt_public.pem:/app/certs/jwt_public.pem:ro,Z
     env_file:
       - ./notification/.env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/db_notifications
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@postgres:5432/db_notifications
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_FROM_EMAIL=noreply@conectanexus.ufps.edu.co
+      - SMTP_TLS_MODE=plain
+      - FRONTEND_BASE_URL=http://localhost:8080
+      - APPLICATION_EVENT_SECRET=${APPLICATION_EVENT_SECRET:-conecta-nexus-local-application-event-secret-2026}
+      - CHALLENGE_EVENT_SECRET=${CHALLENGE_EVENT_SECRET:-conecta-nexus-local-challenge-event-secret-2026}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -190,6 +332,12 @@ services:
       - PORT=3000
       - NODE_ENV=development
       - NUXT_PUBLIC_API_BASE=http://localhost:8080/api/v1
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 25s
     networks:
       - conecta-net
 
@@ -209,14 +357,27 @@ services:
       - ./auth/certs/jwt_public.pem:/etc/nginx/certs/jwt_public.pem:ro,Z
     env_file:
       - ./gateway/.env
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80/gateway/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      - frontend
-      - auth
-      - profile
-      - application
-      - challenge
-      - moderation
-      - notification
+      frontend:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+      profile:
+        condition: service_healthy
+      application:
+        condition: service_healthy
+      challenge:
+        condition: service_healthy
+      moderation:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
     networks:
       - conecta-net
 
@@ -225,6 +386,8 @@ services:
 # ==============================================================================
 volumes:
   postgres_data:
+    driver: local
+  minio_data:
     driver: local
 
 networks:
